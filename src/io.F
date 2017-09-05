@@ -33,18 +33,72 @@ SUBROUTINE READ_INPUT
 # endif
 
 # if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,*)'                                         '
+      if (myid.eq.0) WRITE(3,*)'-------------- PARALLEL -----------------'    
+# endif
+
+# if defined (PARALLEL)
 ! parallel info
       CALL GET_INTEGER_VAL(PX,FILE_NAME,'PX',line,ierr)
+      IF(ierr == 1) THEN
+        PX = 1
+        if (myid.eq.0)write(*,*) 'No PX sepecified ', 'use PX=1'
+        if (myid.eq.0)WRITE(3,'(A20,A20)')'No PX sepecified ', 'use PX=1'
+      ENDIF
       CALL GET_INTEGER_VAL(PY,FILE_NAME,'PY',line,ierr)
+      IF(ierr == 1) THEN
+        PY = 1
+        if (myid.eq.0)write(*,*) 'No PY sepecified ', 'use PY=1'
+        if (myid.eq.0)WRITE(3,'(A20,A20)')'No PY sepecified ', 'use PY=1'
+      ENDIF
+
       if (myid.eq.0) WRITE(3,'(A7,I3,A7,I3)') 'PX   =',PX,'PY   =', PY
 # else
       PX = 1
       PY = 1
 # endif
 
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,*)'                                         '
+      if (myid.eq.0) WRITE(3,*)'-------------- GRID INFO -----------------'
+# else
+      WRITE(3,*)'                                         '
+      WRITE(3,*)'-------------- GRID INFO -----------------'   
+# endif
+
 ! dimension
       CALL GET_INTEGER_VAL(Mglob,FILE_NAME,'Mglob',line,ierr)
+
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'Mglob:', 'NOT DEFINED, STOP'
+         WRITE(3,'(A40,A40)')'Mglob:', 'NOT DEFINED, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'Mglob:', 'NOT DEFINED, STOP'
+         WRITE(3,'(A40,A40)')'Mglob:', 'NOT DEFINED, STOP'
+# endif
+        STOP
+      ENDIF
+
       CALL GET_INTEGER_VAL(Nglob,FILE_NAME,'Nglob',line,ierr)
+
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'Nglob:', 'NOT DEFINED, STOP'
+         WRITE(3,'(A40,A40)')'Nglob:', 'NOT DEFINED, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'Nglob:', 'NOT DEFINED, STOP'
+         WRITE(3,'(A40,A40)')'Nglob:', 'NOT DEFINED, STOP'
+# endif
+        STOP
+      ENDIF
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A7,I3,A7,I3)') 'Mglob=',Mglob,'Nglob=', Nglob
 # else
@@ -53,7 +107,37 @@ SUBROUTINE READ_INPUT
 
 ! grid
       CALL GET_Float_VAL(DX,FILE_NAME,'DX',line,ierr)
+
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'DX:', 'NOT DEFINED, STOP'
+         WRITE(3,'(A40,A40)')'DX:', 'NOT DEFINED, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'DX:', 'NOT DEFINED, STOP'
+         WRITE(3,'(A40,A40)')'DX:', 'NOT DEFINED, STOP'
+# endif
+        STOP
+      ENDIF
+
       CALL GET_Float_VAL(DY,FILE_NAME,'DY',line,ierr)
+
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'DY:', 'NOT DEFINED, STOP'
+         WRITE(3,'(A40,A40)')'DY:', 'NOT DEFINED, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'DY:', 'NOT DEFINED, STOP'
+         WRITE(3,'(A40,A40)')'DY:', 'NOT DEFINED, STOP'
+# endif
+        STOP
+      ENDIF
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A4,F12.2,A4,F12.2)')'DX=',DX,'DY=',DY
 # else
@@ -78,11 +162,88 @@ SUBROUTINE READ_INPUT
 
 ! time
       CALL GET_LOGICAL_VAL(CONSTANT_DT,FILE_NAME,'CONSTANT_DT',line,ierr)
-      CALL GET_Float_VAL(DT_FIXED,FILE_NAME,'DT_FIXED',line,ierr)
+      IF(CONSTANT_DT)THEN
+        CALL GET_Float_VAL(DT_FIXED,FILE_NAME,'DT_FIXED',line,ierr)
+        IF(ierr==1)THEN
+# if defined (PARALLEL)
+         if (myid.eq.0) THEN
+            WRITE(*,'(A40)') 'DT_FIXED NOT DEFINED, STOP'
+            WRITE(3,'(A40)') 'DT_FIXED NOT DEFINED, STOP'
+         endif
+           call MPI_FINALIZE ( ier )
+# else
+            WRITE(*,'(A40)') 'DT_FIXED NOT DEFINED, STOP'
+            WRITE(3,'(A40)') 'DT_FIXED NOT DEFINED, STOP'
+# endif
+         STOP
+        ENDIF
+
+      ENDIF ! end constant dt
+
       CALL GET_Float_VAL(TOTAL_TIME,FILE_NAME,'TOTAL_TIME',line,ierr)
+
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'TOTAL_TIME:', 'NOT FOUND, STOP'
+         WRITE(3,'(A40,A40)')'TOTAL_TIME:', 'NOT FOUND, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'TOTAL_TIME:', 'NOT FOUND, STOP'
+         WRITE(3,'(A40,A40)')'TOTAL_TIME:', 'NOT FOUND, STOP'
+# endif
+        STOP
+      ENDIF
+
+
       CALL GET_Float_VAL(PLOT_INTV,FILE_NAME,'PLOT_INTV',line,ierr)
+
+      IF(ierr==1)THEN
+        PLOT_INTV = 1000.0
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'PLOT_INTV Default:  1000.0 s'
+         WRITE(3,'(A40)')'PLOT_INTV Default:  1000.0 s'
+      endif
+# else
+         WRITE(*,'(A40)')'PLOT_INTV Default:  1000.0 s'
+         WRITE(3,'(A40)')'PLOT_INTV Default:  1000.0 s'
+# endif
+       ENDIF
+
       CALL GET_Float_VAL(PLOT_INTV_STATION,FILE_NAME,'PLOT_INTV_STATION',line,ierr)
+
+      IF(ierr==1)THEN
+        PLOT_INTV_STATION = 1.0
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'PLOT_INTV_STATION Default:  1.0 s'
+         WRITE(3,'(A40)')'PLOT_INTV_STATION Default:  1.0 s'
+      endif
+# else
+         WRITE(*,'(A40)')'PLOT_INTV_STATION Default:  1.0 s'
+         WRITE(3,'(A40)')'PLOT_INTV_STATION Default:  1.0 s'
+# endif
+       ENDIF
+
+
       CALL GET_Float_VAL(SCREEN_INTV,FILE_NAME,'SCREEN_INTV',line,ierr)
+
+      IF(ierr==1)THEN
+        SCREEN_INTV = 1.0
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'SCREEN_INTV Default:  1.0 s'
+         WRITE(3,'(A40)')'SCREEN_INTV Default:  1.0 s'
+      endif
+# else
+         WRITE(*,'(A40)')'SCREEN_INTV Default:  1.0 s'
+         WRITE(3,'(A40)')'SCREEN_INTV Default:  1.0 s'
+# endif
+       ENDIF
+
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A12,F12.2)')'TOTAL_TIME=', TOTAL_TIME
       if (myid.eq.0) WRITE(3,'(A12,F12.2)')'PLOT_INTV= ', PLOT_INTV
@@ -106,9 +267,74 @@ SUBROUTINE READ_INPUT
 
 ! tide and river boundary
       CALL GET_LOGICAL_VAL(RIVER_CLAMPED,FILE_NAME,'RIVER_CLAMPED',line,ierr)
+
+      IF(ierr==1)THEN
+        RIVER_CLAMPED = .FALSE.
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'no river clamped condition'
+         WRITE(3,'(A40)')'no river clamped condition'
+      endif
+# else
+         WRITE(*,'(A40)')'no river clamped condition'
+         WRITE(3,'(A40)')'no river clamped condition'
+# endif
+       ENDIF
+
+
       CALL GET_LOGICAL_VAL(TIDE_CLAMPED, FILE_NAME,'TIDE_CLAMPED',line,ierr)
+
+      IF(ierr==1)THEN
+        RIVER_CLAMPED = .FALSE.
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40)')'no tide clamped condition'
+         WRITE(3,'(A40)')'no tide clamped condition'
+      endif
+# else
+         WRITE(*,'(A40)')'no tide clamped condition'
+         WRITE(3,'(A40)')'no tide clamped condition'
+# endif
+       ENDIF
+
+     IF(RIVER_CLAMPED) THEN
       CALL GET_STRING_VAL(RIVER_FILE,FILE_NAME,'RIVER_FILE',line,ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'RIVER_FILE:', 'NOT FOUND, STOP'
+         WRITE(3,'(A40,A40)')'RIVER_FILE:', 'NOT FOUND, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'RIVER_FILE:', 'NOT FOUND, STOP'
+         WRITE(3,'(A40,A40)')'RIVER_FILE:', 'NOT FOUND, STOP'
+# endif
+        STOP
+      ENDIF
+
+     ENDIF ! end river clamped 
+
+     IF(TIDE_CLAMPED) THEN
       CALL GET_STRING_VAL(TIDE_FILE, FILE_NAME,'TIDE_FILE',line,ierr)
+
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'TIDE_FILE:', 'NOT FOUND, STOP'
+         WRITE(3,'(A40,A40)')'TIDE_FILE:', 'NOT FOUND, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'TIDE_FILE:', 'NOT FOUND, STOP'
+         WRITE(3,'(A40,A40)')'TIDE_FILE:', 'NOT FOUND, STOP'
+# endif
+        STOP
+      ENDIF
+
+     ENDIF ! end tide clamped 
+
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A12,A50)')'RIVER_FILE:', RIVER_FILE
       if (myid.eq.0) WRITE(3,'(A12,A50)')'TIDE_FILE:',  TIDE_FILE
@@ -120,7 +346,35 @@ SUBROUTINE READ_INPUT
 
 ! physics
       CALL GET_INTEGER_VAL(Nonlinear,FILE_NAME,'Nonlinear',line,ierr)
+
+      IF(ierr==1)THEN
+        Nonlinear = 1
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'Nearline:', 'True'
+         WRITE(3,'(A40,A40)')'Nearline:', 'True'
+      endif
+# else
+         WRITE(*,'(A40,A40)')'Nearline:', 'True'
+         WRITE(3,'(A40,A40)')'Nearline:', 'True'
+# endif
+      ENDIF
+
+
       CALL GET_Float_VAL(NU,FILE_NAME,'NU',line,ierr)
+      IF(ierr==1)THEN
+        NU = 0.0
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'NU: Use default,', 'ZERO'
+         WRITE(3,'(A40,A40)')'NU: Use default,', 'ZERO'
+      endif
+# else
+         WRITE(*,'(A40,A40)')'NU: Use default,', 'ZERO'
+         WRITE(3,'(A40,A40)')'NU: Use default,', 'ZERO'
+# endif
+      ENDIF
+
 # if defined (PARALLEL)
        if (myid.eq.0) WRITE(3,'(A10,I6)')'Nonlinear = ', Nonlinear
        if (myid.eq.0) WRITE(3,'(A17,F12.6)')'Eddy Viscosity = ', NU
@@ -131,14 +385,137 @@ SUBROUTINE READ_INPUT
 
 ! friction
       CALL GET_LOGICAL_VAL(SUBGRID_CD_FIXED,FILE_NAME,'SUBGRID_CD_FIXED',line,ierr)
+      IF(ierr==1)THEN
+        SUBGRID_CD_FIXED = .TRUE.
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'SUBGRID_CD_FIXED: Use default,', 'TRUE'
+         WRITE(3,'(A40,A40)')'SUBGRID_CD_FIXED: Use default,', 'TRUE'
+      endif
+# else
+         WRITE(*,'(A40,A40)')'SUBGRID_CD_FIXED: Use default,', 'TRUE'
+         WRITE(3,'(A40,A40)')'SUBGRID_CD_FIXED: Use default,', 'TRUE'
+# endif
+      ENDIF
+
       CALL GET_LOGICAL_VAL(CONSTRUCT_SUBGRID_UV,FILE_NAME,'CONSTRUCT_SUBGRID_UV',line,ierr)
+      IF(ierr==1)THEN
+        CONSTRUCT_SUBGRID_UV = .TRUE.
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'CONSTRUCT_SUBGRID_UV: Use default,', 'TRUE'
+         WRITE(3,'(A40,A40)')'CONSTRUCT_SUBGRID_UV: Use default,', 'TRUE'
+      endif
+# else
+         WRITE(*,'(A40,A40)')'CONSTRUCT_SUBGRID_UV: Use default,', 'TRUE'
+         WRITE(3,'(A40,A40)')'CONSTRUCT_SUBGRID_UV: Use default,', 'TRUE'
+# endif
+      ENDIF
+
       CALL GET_LOGICAL_VAL(SUBGRID_UV_CORRECTION,FILE_NAME,'SUBGRID_UV_CORRECTION',line,ierr)
+      IF(ierr==1)THEN
+        SUBGRID_UV_CORRECTION = .TRUE.
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'SUBGRID_UV_CORRECTION: Use default,', 'TRUE'
+         WRITE(3,'(A40,A40)')'SUBGRID_UV_CORRECTION: Use default,', 'TRUE'
+      endif
+# else
+         WRITE(*,'(A40,A40)')'SUBGRID_UV_CORRECTION: Use default,', 'TRUE'
+         WRITE(3,'(A40,A40)')'SUBGRID_UV_CORRECTION: Use default,', 'TRUE'
+# endif
+      ENDIF
+
+     IF(SUBGRID_CD_FIXED)THEN
       CALL GET_Float_VAL(Cd_fixed,FILE_NAME,'Cd_fixed',line,ierr)
+      IF(ierr==1)THEN
+        Cd_fixed = 0.002
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'Cd_fixed: Use default,', '0.002'
+         WRITE(3,'(A40,A40)')'Cd_fixed: Use default,', '0.002'
+      endif
+# else
+         WRITE(*,'(A40,A40)')'Cd_fixed: Use default,', '0.002'
+         WRITE(3,'(A40,A40)')'Cd_fixed: Use default,', '0.002'
+# endif
+      ENDIF
+
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A13,F12.6)')'Cd_fixed   =', Cd_fixed
+# else
+      WRITE(3,'(A13,F12.6)')'Cd_fixed   =', Cd_fixed
+# endif
+
+     ELSE
       CALL GET_Float_VAL(Manning,FILE_NAME,'Manning',line,ierr)
+      IF(ierr==1)THEN
+        Manning = 0.01
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'Manning: Use default,', '0.01'
+         WRITE(3,'(A40,A40)')'Manning: Use default,', '0.01'
+      endif
+# else
+         WRITE(*,'(A40,A40)')'Manning: Use default,', '0.01'
+         WRITE(3,'(A40,A40)')'Manning: Use default,', '0.01'
+# endif
+      ENDIF
+
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A13,F12.6)')'Manning    =', Manning
+# else
+      WRITE(3,'(A13,F12.6)')'Manning    =', Manning
+# endif
+
       CALL GET_STRING_VAL(MANNING_TYPE,FILE_NAME,'MANNING_TYPE',line,ierr)
 !     MANNING_TYPE: UNIFORM/VARY/SUBGRID
+      IF(ierr==1)THEN
+        MANNING_TYPE = 'UNIFORM'
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'MANNING_TYPE: Use default,', 'UNIFORM'
+         WRITE(3,'(A40,A40)')'MANNING_TYPE: Use default,', 'UNIFORM'
+      endif
+# else
+         WRITE(*,'(A40,A40)')'MANNING_TYPE: Use default,', 'UNIFORM'
+         WRITE(3,'(A40,A40)')'MANNING_TYPE: Use default,', 'UNIFORM'
+# endif
+      ENDIF
+
+     IF(MANNING_TYPE(1:4)=='VARY')THEN
       CALL GET_STRING_VAL(MANNING_FILE,FILE_NAME,'MANNING_FILE',line,ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'MANNING_FILE:', 'NOT FOUND, STOP'
+         WRITE(3,'(A40,A40)')'MANNING_FILE:', 'NOT FOUND, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'MANNING_FILE:', 'NOT FOUND, STOP'
+         WRITE(3,'(A40,A40)')'MANNING_FILE:', 'NOT FOUND, STOP'
+# endif
+        STOP
+      ENDIF
+     ENDIF ! vary manning
+
+     IF(MANNING_TYPE(1:4)=='SUBG')THEN
       CALL GET_STRING_VAL(MANNINGSUBGRID_FILE,FILE_NAME,'MANNINGSUBGRID_FILE',line,ierr)
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'MANNINGSUBGRID_FILE:', 'NOT FOUND, STOP'
+         WRITE(3,'(A40,A40)')'MANNINGSUBGRID_FILE:', 'NOT FOUND, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'MANNINGSUBGRID_FILE:', 'NOT FOUND, STOP'
+         WRITE(3,'(A40,A40)')'MANNINGSUBGRID_FILE:', 'NOT FOUND, STOP'
+# endif
+        STOP
+      ENDIF
+     ENDIF ! subgrid manning
 
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A13,F12.6)')'Cd_fixed   =', Cd_fixed
@@ -154,7 +531,21 @@ SUBROUTINE READ_INPUT
       WRITE(3,'(A20,A50)')'MANNINGSUBGRID_FILE:', MANNINGSUBGRID_FILE
 # endif
 
+# if defined (PARALLEL)
+      if (myid.eq.0) WRITE(3,'(A15,A50)')'MANNING_TYPE:', MANNING_TYPE
+      if (myid.eq.0) WRITE(3,'(A15,A50)')'MANNING_FILE:', MANNING_FILE
+      if (myid.eq.0) WRITE(3,'(A20,A50)')'MANNINGSUBGRID_FILE:', MANNINGSUBGRID_FILE
+# else
+      WRITE(3,'(A15,A50)')'MANNING_TYPE:', MANNING_TYPE
+      WRITE(3,'(A15,A50)')'MANNING_FILE:', MANNING_FILE
+      WRITE(3,'(A20,A50)')'MANNINGSUBGRID_FILE:', MANNINGSUBGRID_FILE
+# endif
+
+     ENDIF ! end cd fixed
+
 ! vegetation
+! vegetation， sediment eco-morpho parts need reading protection
+! --------------------------------------------------------------
 # if defined(VEGETATION)
       CALL GET_STRING_VAL(VEG_TYPE,FILE_NAME,'VEG_TYPE',line,ierr)
       CALL GET_STRING_VAL(VEG_H_FILE,FILE_NAME,'VEG_H_FILE',line,ierr)
@@ -326,20 +717,95 @@ SUBROUTINE READ_INPUT
 # endif
 # endif
 
+! sediment, eco-morpho and vegetation parts (above) need reading protection
+! -------------------------------------------------------------------------
 
 ! numerics schemes
       CALL GET_LOGICAL_VAL(ADI,FILE_NAME,'ADI',line,ierr)
+
+      IF(ierr==1)THEN
+        ADI = .FALSE.
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'ADI: Use default,', 'FALSE'
+         WRITE(3,'(A40,A40)')'ADI: Use default,', 'FALSE'
+      endif
+# else
+         WRITE(*,'(A40,A40)')'ADI: Use default,', 'FALSE'
+         WRITE(3,'(A40,A40)')'ADI: Use default,', 'FALSE'
+# endif
+      ENDIF
+
       CALL GET_LOGICAL_VAL(HOPSCOTCH,FILE_NAME,'HOPSCOTCH',line,ierr)
+
+      IF(ierr==1)THEN
+        HOPSCOTCH = .TRUE.
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'HOPSCOTCH: Use default,', 'TRUE'
+         WRITE(3,'(A40,A40)')'HOPSCOTCH: Use default,', 'TRUE'
+      endif
+# else
+         WRITE(*,'(A40,A40)')'HOPSCOTCH: Use default,', 'TRUE'
+         WRITE(3,'(A40,A40)')'HOPSCOTCH: Use default,', 'TRUE'
+# endif
+      ENDIF
+
       CALL GET_LOGICAL_VAL(IMPLICIT,FILE_NAME,'IMPLICIT',line,ierr)
-!     IF(MANNING_TYPE=='SUBGRID')IMPLICIT=.FALSE.
+      IF(ierr==1)THEN
+        IMPLICIT = .TRUE.
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'IMPLICIT: Use default,', 'TRUE'
+         WRITE(3,'(A40,A40)')'IMPLICIT: Use default,', 'TRUE'
+      endif
+# else
+         WRITE(*,'(A40,A40)')'IMPLICIT: Use default,', 'TRUE'
+         WRITE(3,'(A40,A40)')'IMPLICIT: Use default,', 'TRUE'
+# endif
+      ENDIF
+
+
+!     IF(MANNING_TYPE=='SUBGRID')IMPLICIT=.FALSE. ! wu did this, dont know why
+
       CALL GET_Float_VAL(CFL,FILE_NAME,'CFL',line,ierr)
+
+      IF(ierr==1)THEN
+        CFL = 0.5
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'CFL: Use default,', '0.5'
+         WRITE(3,'(A40,A40)')'CFL: Use default,', '0.5'
+      endif
+# else
+         WRITE(*,'(A40,A40)')'CFL: Use default,', '0.5'
+         WRITE(3,'(A40,A40)')'CFL: Use default,', '0.5'
+# endif
+      ENDIF
+
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A5,F12.2)')'CFL=', CFL
 # else
       WRITE(3,'(A5,F12.2)')'CFL=', CFL
 # endif
+
 ! Froude Number Cap
       CALL GET_Float_VAL(FroudeCap,FILE_NAME,'FroudeCap',line,ierr)
+
+      IF(ierr==1)THEN
+        FroudeCap = 3.0
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'FroudeCap: Use default,', '3.0'
+         WRITE(3,'(A40,A40)')'FroudeCap: Use default,', '3.0'
+      endif
+# else
+         WRITE(*,'(A40,A40)')'FroudeCap: Use default,', '3.0'
+         WRITE(3,'(A40,A40)')'FroudeCap: Use default,', '3.0'
+# endif
+      ENDIF
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A5,F12.2)')'FroudeCap=', FroudeCap
 # else
@@ -348,7 +814,36 @@ SUBROUTINE READ_INPUT
 
 ! MinDepth etc
       CALL GET_Float_VAL(MinDepth,FILE_NAME,'MinDepth',line,ierr)
+
+      IF(ierr==1)THEN
+        MinDepth = 0.1
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'MinDepth: Use default,', '0.1 m'
+         WRITE(3,'(A40,A40)')'MinDepth: Use default,', '0.1 m'
+      endif
+# else
+         WRITE(*,'(A40,A40)')'MinDepth: Use default,', '0.1 m'
+         WRITE(3,'(A40,A40)')'MinDepth: Use default,', '0.1 m'
+# endif
+      ENDIF
+
       CALL GET_Float_VAL(MinDepFric,FILE_NAME,'MinDepFric',line,ierr)
+
+      IF(ierr==1)THEN
+        MinDepFric = MinDepth
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'MinDepthFric: Use default,', 'same as MinDepFric'
+         WRITE(3,'(A40,A40)')'MinDepthFric: Use default,', 'same as MinDepFric'
+      endif
+# else
+         WRITE(*,'(A40,A40)')'MinDepthFric: Use default,', 'same as MinDepFric'
+         WRITE(3,'(A40,A40)')'MinDepthFric: Use default,', 'same as MinDepFric'
+# endif
+      ENDIF
+
+
 # if defined (PARALLEL)
       if (myid.eq.0) WRITE(3,'(A10,F12.6)')'MinDepth=', MinDepth
       if (myid.eq.0) WRITE(3,'(A12,F12.6)')'MinDepFric=', MinDepFric
@@ -360,12 +855,81 @@ SUBROUTINE READ_INPUT
 ! subgrid
 # if defined (SUBGRID)
       CALL GET_INTEGER_VAL(SubMainGridRatio,FILE_NAME,'SubMainGridRatio',line,ierr)
-      CALL GET_Float_VAL(EtaMinVal,FILE_NAME,'EtaMinVal',line,ierr)
-      CALL GET_Float_VAL(EtaMaxVal,FILE_NAME,'EtaMaxVal',line,ierr)
-      CALL GET_Float_VAL(D_Eta,FILE_NAME,'D_Eta',line,ierr)
-      CALL GET_INTEGER_VAL(PolyOrder,FILE_NAME,'PolyOrder',line,ierr)
-# endif
 
+      IF(ierr==1)THEN
+        SubMainGridRatio = 1
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'SubMainGridRatio: not defined', 'Use 1'
+         WRITE(3,'(A40,A40)')'SubMainGridRatio: not defined', 'Use 1'
+      endif
+# else
+         WRITE(*,'(A40,A40)')'SubMainGridRatio: not defined', 'Use 1'
+         WRITE(3,'(A40,A40)')'SubMainGridRatio: not defined', 'Use 1'
+# endif
+      ENDIF
+
+      CALL GET_Float_VAL(EtaMinVal,FILE_NAME,'EtaMinVal',line,ierr)
+
+      IF(ierr==1)THEN
+        EtaMinVal = -1.0
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'EtaMinVal: not defined', 'Use -1.0'
+         WRITE(3,'(A40,A40)')'EtaMinVal: not defined', 'Use -1.0'
+      endif
+# else
+         WRITE(*,'(A40,A40)')'EtaMinVal: not defined', 'Use -1.0'
+         WRITE(3,'(A40,A40)')'EtaMinVal: not defined', 'Use -1.0'
+# endif
+      ENDIF
+
+      CALL GET_Float_VAL(EtaMaxVal,FILE_NAME,'EtaMaxVal',line,ierr)
+
+      IF(ierr==1)THEN
+        EtaMaxVal = 1.0
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'EtaMaxVal: not defined', 'Use 1.0'
+         WRITE(3,'(A40,A40)')'EtaMaxVal: not defined', 'Use 1.0'
+      endif
+# else
+         WRITE(*,'(A40,A40)')'EtaMaxVal: not defined', 'Use 1.0'
+         WRITE(3,'(A40,A40)')'EtaMaxVal: not defined', 'Use 1.0'
+# endif
+      ENDIF
+
+      CALL GET_Float_VAL(D_Eta,FILE_NAME,'D_Eta',line,ierr)
+
+      IF(ierr==1)THEN
+        D_Eta = 1.0
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'D_Eta: not defined', 'Use 1.0'
+         WRITE(3,'(A40,A40)')'D_Eta: not defined', 'Use 1.0'
+      endif
+# else
+         WRITE(*,'(A40,A40)')'D_Eta: not defined', 'Use 1.0'
+         WRITE(3,'(A40,A40)')'D_Eta: not defined', 'Use 1.0'
+# endif
+      ENDIF
+
+      CALL GET_INTEGER_VAL(PolyOrder,FILE_NAME,'PolyOrder',line,ierr)
+      IF(ierr==1)THEN
+        PolyOrder = 2.0
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'PolyOrder: not defined', 'Use 2.0'
+         WRITE(3,'(A40,A40)')'PolyOrder: not defined', 'Use 2.0'
+      endif
+# else
+         WRITE(*,'(A40,A40)')'PolyOrder: not defined', 'Use 2.0'
+         WRITE(3,'(A40,A40)')'PolyOrder: not defined', 'Use 2.0'
+# endif
+      ENDIF
+
+# endif
+! end subgrid
 
 ! obstacle structures
       CALL GET_STRING_VAL(OBSTACLE_FILE,FILE_NAME,'OBSTACLE_FILE',line,ierr)
@@ -403,12 +967,26 @@ SUBROUTINE READ_INPUT
 # endif
       ENDIF
 
-
 ! station files
       CALL GET_INTEGER_VAL(NumberStations,FILE_NAME,'NumberStations',line,ierr)
       IF(NumberStations>0)THEN
       CALL GET_STRING_VAL(STATIONS_FILE,FILE_NAME,'STATIONS_FILE',line,ierr)
+
+      IF(ierr==1)THEN
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'STATIONS_FILE:', 'NOT FOUND, STOP'
+         WRITE(3,'(A40,A40)')'STATIONS_FILE:', 'NOT FOUND, STOP'
+      endif
+       call MPI_FINALIZE ( ier )
+# else
+         WRITE(*,'(A40,A40)')'STATIONS_FILE:', 'NOT FOUND, STOP'
+         WRITE(3,'(A40,A40)')'STATIONS_FILE:', 'NOT FOUND, STOP'
+# endif
+        STOP
       ENDIF
+
+      ENDIF ! end number of station
       
 ! output parameters
       CALL GET_LOGICAL_VAL(OUT_DEPTH,FILE_NAME,'DEPTH_OUT',line,ierr)
@@ -696,7 +1274,7 @@ SUBROUTINE PREVIEW
 ! ******** tmp output
      IF(OUT_TMP)THEN
         TMP_NAME = TRIM(FDIR)//'tmp_'//TRIM(FILE_NAME)
-        call PutFile(TMP_NAME,tmp4preview)
+        call PutFile(TMP_NAME,tmp4preview,Mloc,Nloc)
      ENDIF
 
 
