@@ -55,6 +55,7 @@ SUBROUTINE TIDE_BC
                  - TidePha(Kcon,Kpnt)*DEG2RAD+Tideu0(Kcon)*DEG2RAD )
         ENDDO
 
+
 # if defined (PARALLEL)
         Ip=Nghost+I_bnd(Kpnt) - npx*Mglob/px
         Jp=Nghost+J_bnd(Kpnt) - npy*Nglob/py
@@ -70,6 +71,7 @@ SUBROUTINE TIDE_BC
         ENDIF
 # else
         Eta(I_bnd(Kpnt)+Nghost,J_bnd(Kpnt)+Nghost) = EtaComponent ! *TANH(TIME/3600.0_SP/6.0_SP)
+
 # endif
 
 !       add the tanh() term to spin-up gradually, tanh(2)~1.0
