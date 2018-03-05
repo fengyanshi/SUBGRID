@@ -132,6 +132,13 @@ SUBROUTINE INITIALIZATION
 
 # endif
 
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'INITIALIZATION: sediment coeff'     
+#    else   
+       WRITE(*,*) 'INITILIZATION: sediment coeff'
+#    endif
+# endif
 
     P=ZERO
     Q=ZERO
@@ -190,6 +197,15 @@ SUBROUTINE INITIALIZATION
     CALL GetFile_SubGrid(VEG_N_SUBGRID_FILE,VEG_N_SUB)
     CALL GetFile_SubGrid(VEG_D_SUBGRID_FILE,VEG_D_SUB)
   ENDIF
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'INITIALIZATION: vegetation'     
+#    else   
+       WRITE(*,*) 'INITILIZATION: vegetation'
+#    endif
+# endif
+
 # endif
 
 ! read depth and friction
@@ -198,29 +214,89 @@ SUBROUTINE INITIALIZATION
   IF(MANNING_TYPE=='VARY')THEN
     ALLOCATE(ManningVary(Mloc,Nloc))
     CALL GetFile (MANNING_FILE,ManningVary)
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'INITIALIZATION: vary manning file'     
+#    else   
+       WRITE(*,*) 'INITILIZATION: vary manning file'
+#    endif
+# endif
+
   ENDIF
 
 # if defined (SUBGRID)
    CALL GetFile_Subgrid (DEPTH_FILE,DepSubGrid)
    IF(MANNING_TYPE=='SUBGRID')THEN
      CALL GetFile_Subgrid (MANNINGSUBGRID_FILE,ManningSubGrid)
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'INITIALIZATION: manning'     
+#    else   
+       WRITE(*,*) 'INITILIZATION: manning'
+#    endif
+# endif
+
    ENDIF
 
 # if defined (INTERPOLATION)
      CALL INTERPOLATE_POROSITY
      CALL INTERPOLATE_FRICTION
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'INITIALIZATION: interp porosity/friction'     
+#    else   
+       WRITE(*,*) 'INITILIZATION: interp porasity/friction'
+#    endif
+# endif
+
 # endif
 
 # if defined (POLY_FRICTION)
      CALL SETUP_POLYNOMIAL_FRICTION
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'INITIALIZATION: polynomial_friction'     
+#    else   
+       WRITE(*,*) 'INITILIZATION: polynomial_friction'
+#    endif
+# endif
 # endif
 # if defined (POLY_POROSITY)
      CALL SETUP_POLYNOMIAL_POROSITY
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'INITIALIZATION: polynomial_porosity'     
+#    else   
+       WRITE(*,*) 'INITILIZATION: polynomial_porosity'
+#    endif
+# endif
+
 # endif
 
      CALL UPDATE_SUBGRID
 
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'INITIALIZATION: update_subgrid'     
+#    else   
+       WRITE(*,*) 'INITILIZATION: update_subgrid'
+#    endif
+# endif
+
      CALL SETUP_INITIAL_ETA_SUBGRID
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'INITIALIZATION: setup_eta'     
+#    else   
+       WRITE(*,*) 'INITILIZATION: setup_eta'
+#    endif
+# endif
 
 # endif
 ! end subgrid
@@ -237,6 +313,14 @@ SUBROUTINE INITIALIZATION
     ELSE
      DT = 0.5_SP*CFL*MIN(DX,DY)/SQRT(grav*MaxDepth) ! for hopscotch
     ENDIF
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'INITIALIZATION: get dt'     
+#    else   
+       WRITE(*,*) 'INITILIZATION: get dt'
+#    endif
+# endif
 
 # if defined (PARALLEL)
      call MPI_ALLREDUCE(DT,myvar,1,MPI_SP,MPI_MIN,MPI_COMM_WORLD,ier)
@@ -258,17 +342,54 @@ SUBROUTINE INITIALIZATION
 
     CALL INIT_BOUNDARY_CONDITIONS
 
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'INITIALIZATION: init_bc'     
+#    else   
+       WRITE(*,*) 'INITILIZATION: init_bc'
+#    endif
+# endif
+
     IF(RIVER_CLAMPED)THEN
       CALL InitRiverFlux
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'INITIALIZATION: InitRiverFlux'     
+#    else   
+       WRITE(*,*) 'INITILIZATION: InitRiverFlux'
+#    endif
+# endif
+
     ENDIF
 
     IF(TIDE_CLAMPED)THEN
       CALL InitTideBC
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'INITIALIZATION: InitTideBC'     
+#    else   
+       WRITE(*,*) 'INITILIZATION: InitTideBC'
+#    endif
+# endif
+
     ENDIF
+
 
 # if defined(COUPLING)
       CALL InitOneWayCoupling
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'INITIALIZATION: InitOneWayCoupling'     
+#    else   
+       WRITE(*,*) 'INITILIZATION: InitOneWayCoupling'
+#    endif
 # endif
+
+# endif
+
 
 # if defined(SEDIMENT)
       CALL InitSedConcentration
@@ -282,11 +403,30 @@ SUBROUTINE INITIALIZATION
         ENDIF
       ENDIF
 # endif
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'INITIALIZATION: InitSedimentCoupling'     
+#    else   
+       WRITE(*,*) 'INITILIZATION: InitSedimentCoupling'
+#    endif
+# endif
+
 # endif
 
 # if defined(ECO_MORPHOLOGY)
       CALL INITIALIZE_POPULATION
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'INITIALIZATION: population'     
+#    else   
+       WRITE(*,*) 'INITILIZATION: population'
+#    endif
 # endif
+
+# endif
+
 
 ! read obstacle structures ! $$$
      IF(OBSTACLE)THEN
@@ -307,11 +447,22 @@ SUBROUTINE INITIALIZATION
 # endif
        MASK_STRUC = INT(VarGlob)
        DEALLOCATE(VarGlob)
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'INITIALIZATION: obc'     
+#    else   
+       WRITE(*,*) 'INITILIZATION: obc'
+#    endif
+# endif
+
      ENDIF
 
+
 ! read inactive points
+
+     ALLOCATE (MASK_DRY(Mloc,Nloc,SubMainGridRatio,SubMainGridRatio))
      IF(INACTIVE_PNT)THEN
-       ALLOCATE (MASK_DRY(Mloc,Nloc,SubMainGridRatio,SubMainGridRatio))
        IF(.not.check_exist(TRIM(INACTIVE_PNT_FILE)))THEN
          WRITE(*,*)TRIM(INACTIVE_PNT_FILE), ' specified in input.txt but does not exist in folder.'
          STOP
@@ -321,13 +472,17 @@ SUBROUTINE INITIALIZATION
       MASK_DRY=1
      ENDIF
 
+       WRITE(*,*) 'INITILIZATION: OK'
+
 ! # if defined (DEBUG)
 # if defined (PARALLEL)
     IF(myid == 0)THEN
      WRITE(3,*)'initialization completed'
+     WRITE(*,*)'initialization completed'
     ENDIF
 # else
      WRITE(3,*)'initialization completed'
+     WRITE(*,*)'initialization completed'
 # endif
 !# endif
 

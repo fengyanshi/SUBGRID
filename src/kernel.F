@@ -7,14 +7,54 @@ PROGRAM	SUBGRID_MODEL
 	 CALL	MPI_INIT ( ier )
 #	endif
 
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'MPI_INIT'     
+#    else   
+       WRITE(*,*) 'PARALLEL is not used'
+#    endif
+# endif
+
 	 CALL	READ_INPUT
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'READ_INPUT'     
+#    else   
+       WRITE(*,*) 'READ_INPUT'
+#    endif
+# endif
 
 	 CALL	INDEX
 
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'INDEX'     
+#    else   
+       WRITE(*,*) 'INDEX'
+#    endif
+# endif
+
 	 CALL	INITIALIZATION
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'INITIALIZATION'     
+#    else   
+       WRITE(*,*) 'INITILIZATION'
+#    endif
+# endif
 
 !	 check
 !	 CALL	CHECK_EXCH_SUBGRID
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'CHECK_EXCH_SUBGRID'     
+#    else   
+       WRITE(*,*) 'CHECK_EXCH_SUBGRID'
+#    endif
+# endif
 
 
 	 DO	WHILE	(TIME<TOTAL_TIME)	!	begin	main loop
@@ -22,20 +62,56 @@ PROGRAM	SUBGRID_MODEL
 
 		 CALL	UPDATE_MASKS
 
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'UPDATE_MASKS'     
+#    else   
+       WRITE(*,*) 'UPDATE_MASKS'
+#    endif
+# endif
+
 		 ! bc: coupling	time-series
 #	if defined(COUPLING)
 		 CALL	OneWayCoupling
+
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'OneWayCoupling'     
+#    else   
+       WRITE(*,*) 'OneWayCoupling'
+#    endif
+# endif
+
 #	endif
 
 
 		 ! tide	boundary
 		 IF(TIDE_CLAMPED)THEN
 			 CALL	TIDE_BC
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'TIDE_BC'     
+#    else   
+       WRITE(*,*) 'TIDE_BC'
+#    endif
+# endif
+
 		 ENDIF
 
 		 ! river discharge
 		 IF(RIVER_CLAMPED)THEN
 			 CALL	RIVER_FLUX_BC
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'RIVER_FLUX_BC'     
+#    else   
+       WRITE(*,*) 'RIVER_FLUX_BC'
+#    endif
+# endif
+
 		 ENDIF
 
 		 ! sediment	boundary
@@ -51,10 +127,27 @@ PROGRAM	SUBGRID_MODEL
 #	endif
 			 ENDIF
 		 ENDIF
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'SEDIMENT_MODULE'     
+#    else   
+       WRITE(*,*) 'SEDIMENT_MODULE'
+#    endif
+# endif
+
 #	endif
 
 		 ! calculate A B C
 		 CALL	CALCULATE_ABC
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'CALCULATE_ABC'     
+#    else   
+       WRITE(*,*) 'CALCULATE_ABC'
+#    endif
+# endif
 
 		 ! calculate eta
 		 IF(HOPSCOTCH)THEN
@@ -63,27 +156,76 @@ PROGRAM	SUBGRID_MODEL
 			 CALL	TRIDIAGONAL
 		 ENDIF
 
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'CALCULATE ETA'     
+#    else   
+       WRITE(*,*) 'CALCULATE ETA'
+#    endif
+# endif
+
 		 ! calculate P Q
 		 CALL	CALCULATE_H_PQ_UV
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'CALCULATE_H_PQ_UV'     
+#    else   
+       WRITE(*,*) 'CALCULATE_H_PQ_UV'
+#    endif
+# endif
 
 		 ! construct subgrid eta,	uv
 		 IF(MANNING_TYPE=='SUBGRID'.AND.SubMainGridRatio.GT.1)THEN
 			 CALL	CONSTRUCT_SUBGRID_ETA
 			 CALL	GET_PIXEL_CENTER_VARIABLES
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'CONTRUCT_SUBGRID_ETA'     
+#    else   
+       WRITE(*,*) 'CONSTRUCT_SUBGRID_ETA'
+#    endif
+# endif
 		 ENDIF
 
 		 ! structures
 		 IF(OBSTACLE)THEN
 			 CALL	STRUCTURE_CONDITIONS
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'STRUCTURE CONDITIONS'     
+#    else   
+       WRITE(*,*) 'STRUCTURE CONDITIONS'
+#    endif
+# endif
+
 		 ENDIF
 
 		 ! sediment	model
 #	if defined(SEDIMENT)
 		 CALL	UPDATE_SED
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'UPDATE_SED'     
+#    else   
+       WRITE(*,*) 'UPDATE_SED'
+#    endif
+# endif
 #	endif
 
 		 ! update	porosity h
 		 CALL	UPDATE_SUBGRID
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'UPDATE_SUBGRID'     
+#    else   
+       WRITE(*,*) 'READ_INPUT'
+#    endif
+# endif
 
 		 ! eco-morphology	model
 #	if defined(ECO_MORPHOLOGY)
@@ -93,6 +235,14 @@ PROGRAM	SUBGRID_MODEL
 
 			 ! output	vegetation dynamics
 			 CALL	PREVIEW_ECO
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'ECO_MORPHOLOGY'     
+#    else   
+       WRITE(*,*) 'ECO_MORPHOLOGY'
+#    endif
+# endif
+
 		 ENDIF
 #	endif
 
@@ -103,12 +253,27 @@ PROGRAM	SUBGRID_MODEL
 			 IF(PLOT_COUNT_STATION>=PLOT_INTV_STATION)THEN
 				 PLOT_COUNT_STATION=PLOT_COUNT_STATION-PLOT_INTV_STATION
 				 CALL	STATIONS
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'STATIONS'     
+#    else   
+       WRITE(*,*) 'STATIONS'
+#    endif
+# endif
+
 			 ENDIF
 		 ENDIF
 
 		 ! output	maps
 		 IF(TIME-(ICOUNT+1)*PLOT_INTV>=0.0_SP)THEN
 			 CALL	PREVIEW
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'PREVIEW'     
+#    else   
+       WRITE(*,*) 'PREVIEW'
+#    endif
+# endif
 		 ENDIF
 
 		 ! output	screen
@@ -123,7 +288,15 @@ PROGRAM	SUBGRID_MODEL
 			 DT=DT_FIXED
 			 TIME=TIME+DT
 		 ELSE
-			 CALL	ESTIMATE_DT(Mloc,Nloc,DX,DY,U,V,H_u,H_v,MinDepth,DT,CFL,TIME)
+		CALL	ESTIMATE_DT(Mloc,Nloc,DX,DY,U,V,H_u,H_v,MinDepth,DT,CFL,TIME)
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'ESTIMATE_DT'     
+#    else   
+       WRITE(*,*) 'ESTIMATE_DT'
+#    endif
+# endif
 		 ENDIF
 
 #	if defined (DEBUG)
@@ -186,6 +359,7 @@ SUBROUTINE CHECK_EXCH_SUBGRID
 		 ENDDO
 		 ENDDO
 
+# if(PARALLEL)
 		 IF(myid ==	0)THEN
 			 open(55,file='check_local_id0.txt')
 			 DO	J=1,Nloc*SubMainGridRatio
@@ -205,6 +379,7 @@ SUBROUTINE CHECK_EXCH_SUBGRID
 			 ENDDO
 			 close(55)
 		 ENDIF
+# endif
 
 521	FORMAT(1000F8.4)
 
