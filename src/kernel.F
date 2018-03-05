@@ -742,7 +742,7 @@ SUBROUTINE CALCULATE_ABC
 		DO I=Ibeg,Iend1
 
 			!	advection	terms
-			!	note:	I	made a mistake here	and	it's commented now below.	same for Q.	2016/01/13
+			!	note:	I	made a mistake here	and	its commented now below.	same for Q.	2016/01/13
 			IF(UPWINDING)THEN
 				!	upwind
 				IF(P(I,J)>ZERO)THEN
