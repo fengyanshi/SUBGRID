@@ -2,7 +2,7 @@ SUBROUTINE INITIALIZATION
     USE GLOBAL
     USE Input_Util
     IMPLICIT NONE
-    REAL(SP) :: Hx,Ux,Hy,Uy,MaxDepth
+    REAL(SP) :: Hx,Ux,Hy,Uy
 # if defined (PARALLEL)
      REAL(SP)::myvar
 # endif

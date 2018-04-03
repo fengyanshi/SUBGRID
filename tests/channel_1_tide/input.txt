@@ -31,8 +31,8 @@ PLOT_INTV = 100.0
 PLOT_INTV_STATION = 3600.0
 SCREEN_INTV = 100.0
   ! -----------------GRID----------------------------------
-DX = 10.0
-DY = 10.0
+DX = 0.2
+DY = 0.2
   ! ---------------- PERIODIC BOUNDARY CONDITION ---------
   ! South-North periodic boundary condition
   !

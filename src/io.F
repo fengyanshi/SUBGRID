@@ -1114,6 +1114,9 @@ END SUBROUTINE STATIONS
 
 SUBROUTINE PREVIEW
      USE GLOBAL
+# if defined (SUBSURFACE)
+     USE SUBSURFACE_MODULE
+# endif
      IMPLICIT NONE
      REAL(SP),DIMENSION(Mloc,Nloc) :: ETA_MASKOUT
 
@@ -1269,6 +1272,45 @@ SUBROUTINE PREVIEW
         DEALLOCATE(DepSubGridOut)
      ENDIF
 # endif
+
+# if defined (SUBSURFACE)
+
+     IF(OUT_ETA_GROUND)THEN
+        TMP_NAME = TRIM(FDIR)//'etagrn_'//TRIM(FILE_NAME)
+        call PutFile(TMP_NAME,ETA_ground,Mloc,Nloc)
+     ENDIF
+
+     IF(OUT_P_GROUND)THEN
+        TMP_NAME = TRIM(FDIR)//'pgrn_'//TRIM(FILE_NAME)
+        call PutFile(TMP_NAME,P_ground,Mloc1,Nloc)
+     ENDIF
+
+     IF(OUT_Q_GROUND)THEN
+        TMP_NAME = TRIM(FDIR)//'qgrn_'//TRIM(FILE_NAME)
+        call PutFile(TMP_NAME,Q_ground,Mloc,Nloc1)
+     ENDIF
+
+     IF(OUT_MASK_GROUND)THEN
+        TMP_NAME = TRIM(FDIR)//'maskgro_'//TRIM(FILE_NAME)
+        Int2Flo(1:Mloc,1:Nloc)=MASK_GROUND(1:Mloc,1:Nloc)
+        call PutFile(TMP_NAME,Int2Flo(1:Mloc,1:Nloc),Mloc,Nloc)
+     ENDIF
+
+     IF(OUT_MASKu_GROUND)THEN
+        TMP_NAME = TRIM(FDIR)//'maskugrn_'//TRIM(FILE_NAME)
+        Int2Flo(1:Mloc1,1:Nloc)=MASKu_GROUND(1:Mloc1,1:Nloc)
+        call PutFile(TMP_NAME,Int2Flo(1:Mloc1,1:Nloc),Mloc1,Nloc)
+     ENDIF
+
+     IF(OUT_MASKv_GROUND)THEN
+        TMP_NAME = TRIM(FDIR)//'maskvgrn_'//TRIM(FILE_NAME)
+        Int2Flo(1:Mloc,1:Nloc1)=MASKv_GROUND(1:Mloc,1:Nloc1)
+        call PutFile(TMP_NAME,Int2Flo(1:Mloc,1:Nloc1),Mloc,Nloc1)
+     ENDIF
+
+
+# endif
+! end subsurface
 
 
 ! ******** tmp output

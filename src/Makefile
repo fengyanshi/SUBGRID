@@ -9,7 +9,7 @@
 #--------------------------------------------------------------------------
 
 #            FLAG_1 = -DDOUBLE_PRECISION 
-            FLAG_2 = -DPARALLEL
+#             FLAG_2 = -DPARALLEL
 #            FLAG_3 = -DDEBUG
             FLAG_4 = -DSUBGRID
 #            FLAG_5 = -DCOUPLING
@@ -18,9 +18,11 @@
 #            FLAG_8 = -DPOLY_POROSITY
 #            FLAG_9 = -DINTERPOLATION
 #            FLAG_10 = -DSEDIMENT
-            FLAG_11 = -DVEGETATION
+#            FLAG_11 = -DVEGETATION
 #            FLAG_12 = -DECO_MORPHOLOGY
-            FLAG_13 = -DFREESLIP_BC
+#            FLAG_13 = -DFREESLIP_BC
+#             FLAG_14 = -DDEBUG
+             FLAG_15 = -DSUBSURFACE
 #--------------------------------------------------------------------------
 #  mpi defs 
 #--------------------------------------------------------------------------
@@ -66,7 +68,7 @@
 #  SUBGRID Source Code.
 #--------------------------------------------------------------------------
 
-MODS  = mod_param.F mod_global.F mod_util.F \
+MODS  = mod_param.F mod_global.F mod_util.F mod_subsurface.F\
 
 MAIN  = kernel.F init.F io.F subgrid.F bc_exchange.F coupling.F polyfit.F sed.F sed_bc.F biomass.F river.F tide.F\
 

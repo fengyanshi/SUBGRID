@@ -1,22 +1,22 @@
 MODULE GLOBAL
-			 USE PARAM
-			 IMPLICIT	NONE
+   USE PARAM
+   IMPLICIT NONE
 
-			 SAVE
+   SAVE
 
-!	MPI	variables
-#	if defined (PARALLEL)
-			 INTEGER ::	myid,ier
-			 INTEGER ::	comm2d
-			 INTEGER ::	n_west,	n_east,	n_suth,	n_nrth
-			 INTEGER ::	npx,npy
-			 INTEGER ::	ndims=2
-			 INTEGER ::	NumberProcessor
-			 INTEGER,	DIMENSION(2) ::	dims,	coords
-			 LOGICAL,	DIMENSION(2) ::	periods
-			 LOGICAL ::	reorder	=	.true.
-#	endif
-			 INTEGER ::	px,py
+!MPI	variables
+# if defined (PARALLEL)
+   INTEGER ::	myid,ier
+   INTEGER ::	comm2d
+   INTEGER ::	n_west,	n_east,	n_suth,	n_nrth
+   INTEGER ::	npx,npy
+   INTEGER ::	ndims=2
+   INTEGER ::	NumberProcessor
+   INTEGER,	DIMENSION(2) ::	dims,	coords
+   LOGICAL,	DIMENSION(2) ::	periods
+   LOGICAL ::	reorder	=	.true.
+# endif
+   INTEGER ::	px,py
 
 
 !	define parameters
@@ -49,6 +49,7 @@ MODULE GLOBAL
 			 REAL(SP)	:: FroudeCap=10.0_SP
 			 REAL(SP)	:: SWE_ETA_DEP=0.7_SP
 			 REAL(SP)	:: NU=0.02_SP
+                         REAL(SP) :: MaxDepth
 
 !	some global	variables
 !	Mloc1=Mloc+1,	Nloc1=Nloc+1

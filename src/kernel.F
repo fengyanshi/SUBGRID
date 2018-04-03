@@ -1,6 +1,10 @@
 PROGRAM	SUBGRID_MODEL
 
 	 USE GLOBAL
+# if defined (SUBSURFACE)
+         USE SUBSURFACE_MODULE
+# endif
+
 	 IMPLICIT	NONE
 
 #	if defined (PARALLEL)
@@ -45,8 +49,6 @@ PROGRAM	SUBGRID_MODEL
 #    endif
 # endif
 
-!	 check
-!	 CALL	CHECK_EXCH_SUBGRID
 
 # if defined (DEBUG)
 #    if defined (PARALLEL)
@@ -55,6 +57,21 @@ PROGRAM	SUBGRID_MODEL
        WRITE(*,*) 'CHECK_EXCH_SUBGRID'
 #    endif
 # endif
+
+# if defined (SUBSURFACE)
+    CALL SUBSURFACE_INITIAL
+
+# if defined (DEBUG)
+#    if defined (PARALLEL)
+       IF(myid==0) WRITE(*,*) 'SUBSURFACE_INITIAL'     
+#    else   
+       WRITE(*,*) 'SUBSURFACE_INITIAL'
+#    endif
+# endif
+
+# endif
+! subsurface
+
 
 
 	 DO	WHILE	(TIME<TOTAL_TIME)	!	begin	main loop
@@ -202,6 +219,10 @@ PROGRAM	SUBGRID_MODEL
 # endif
 
 		 ENDIF
+
+# if defined (SUBSURFACE)
+     CALL UPDATE_SUBSURFACE
+# endif
 
 		 ! sediment	model
 #	if defined(SEDIMENT)
