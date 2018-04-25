@@ -308,6 +308,16 @@ SUBROUTINE INITIALIZATION
      ENDDO
      ENDDO
 
+# if defined (PARALLEL)
+     call MPI_ALLREDUCE(MaxDepth,myvar,1,MPI_SP,MPI_MAX,MPI_COMM_WORLD,ier)
+     MaxDepth = myvar
+     IF(myid == 0)THEN
+     WRITE(*,*)'MaxDepth= ',MaxDepth
+     ENDIF
+# else
+     WRITE(*,*)'MaxDepth = ',MaxDepth
+# endif
+
     IF(ADI)THEN
      DT = CFL*MIN(DX,DY)/SQRT(grav*MaxDepth)
     ELSE
