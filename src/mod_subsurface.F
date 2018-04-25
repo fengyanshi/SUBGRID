@@ -35,7 +35,7 @@ MODULE SUBSURFACE_MODULE
   REAL(SP),DIMENSION(:,:),ALLOCATABLE::PORO_ground,ETA_ground,P_ground,Q_ground, &
                          Du_ground,Su_ground,Dv_ground,Sv_ground,  &
                          KAu_ground,KAv_ground,DepthX,DepthY, &
-                         ETAu_ground,ETAv_ground,POROSITY
+                         ETAu_ground,ETAv_ground,POROgrn
   INTEGER, DIMENSION(:,:),ALLOCATABLE::MASK_ground,MASKu_ground,MASKv_ground
   REAL(SP) :: S_constant,KA_constant,POR_constant
 
@@ -101,12 +101,12 @@ SUBROUTINE SUBSURFACE_INITIAL
         POR_constant = 0.3
 # if defined (PARALLEL)
       if (myid.eq.0) THEN
-         WRITE(*,'(A80)')'POROSITY: Use default,', '0.3'
-         WRITE(3,'(A80)')'POROSITY: Use default,', '0.3'
+         WRITE(*,'(A80)')'POROgrn: Use default,', '0.3'
+         WRITE(3,'(A80)')'POROgrn: Use default,', '0.3'
       endif
 # else
-         WRITE(*,'(A80)')'POROSITY: Use default,', '0.3'
-         WRITE(3,'(A80)')'POROSITY: Use default,', '0.3'
+         WRITE(*,'(A80)')'POROgrn: Use default,', '0.3'
+         WRITE(3,'(A80)')'POROgrn: Use default,', '0.3'
 # endif
       ENDIF
 
@@ -132,7 +132,7 @@ SUBROUTINE SUBSURFACE_INITIAL
                  Su_ground(Mloc1,Nloc),Sv_ground(Mloc,Nloc1), &
                  KAu_ground(Mloc1,Nloc),KAv_ground(Mloc,Nloc1), &
                  MASK_ground(Mloc,Nloc),MASKu_ground(Mloc1,Nloc), &
-                 POROSITY(Mloc,Nloc), &
+                 POROgrn(Mloc,Nloc), &
                  MASKv_ground(Mloc,Nloc1), &
                  DepthX(Mloc1,Nloc),DepthY(Mloc,Nloc1), &
                  ETAu_ground(Mloc1,Nloc),ETAv_ground(Mloc,Nloc1))
@@ -154,7 +154,7 @@ SUBROUTINE SUBSURFACE_INITIAL
     Sv_ground = S_constant
     KAu_ground = KA_constant 
     KAv_ground = KA_constant
-    POROSITY = POR_constant
+    POROgrn = POR_constant
 
 ! depthx and depthy
 
@@ -171,38 +171,6 @@ END SUBROUTINE SUBSURFACE_INITIAL
 !------------------------
 
 SUBROUTINE UPDATE_GROUND_MASK_ETA
-
-
-! masks
-    DO J=1,Nloc
-    DO I=1,Mloc
-      IF(MASK(I,J)==0)THEN
-        MASK_ground(I,J) = 1
-      ELSE
-        MASK_ground(I,J) = 0
-      ENDIF 
-    ENDDO
-    ENDDO
-
-    DO J=1,Nloc
-    DO I=1,Mloc1
-      IF(MASKu(I,J)==0)THEN
-        MASKu_ground(I,J) = 1
-      ELSE
-        MASKu_ground(I,J) = 0
-      ENDIF 
-    ENDDO
-    ENDDO
-
-    DO J=1,Nloc1
-    DO I=1,Mloc
-      IF(MASKv(I,J)==0)THEN
-        MASKv_ground(I,J) = 1
-      ELSE
-        MASKv_ground(I,J) = 0
-      ENDIF 
-    ENDDO
-    ENDDO
 
 ! eta at u v points
 
@@ -275,11 +243,12 @@ SUBROUTINE UPDATE_SUBSURFACE
      CALL PHI_EXCH_3(Q_ground)
 # endif     
 
+
      DO J=Jbeg,Jend
      DO I=Ibeg,Iend
        IF(MASK(I,J)==0)THEN
          ETA_ground(I,J) = ETA_ground(I,J)  &
-              -1.0_SP/POROSITY(I,J)*((P_ground(I+1,J)-P_ground(I,J))*dt_over_dx  &
+              -1.0_SP/POROgrn(I,J)*((P_ground(I+1,J)-P_ground(I,J))*dt_over_dx  &
               +(Q_ground(I,J+1)-Q_ground(I,J))*dt_over_dy)
        ELSE
          ETA_ground(I,J) = ETA(I,J)
@@ -291,8 +260,111 @@ SUBROUTINE UPDATE_SUBSURFACE
      CALL PHI_EXCH_1(ETA_ground)
 # endif
 
+    CALL FILLIN_GRN_GHOST
+
 END SUBROUTINE UPDATE_SUBSURFACE
 
+
+SUBROUTINE FILLIN_GRN_GHOST
+
+!	west
+#	if defined(PARALLEL)
+	if(	n_west .eq.	MPI_PROC_NULL	)then
+#	endif
+
+		DO J=1,Nloc
+		DO I=1,Nghost
+                        ETA_ground(I,J) = ETA_ground(Ibeg,J)
+			P_ground(I,J)=P_ground(Ibeg,J)
+			Du_ground(I,J)=Du_ground(Ibeg,J)
+		ENDDO
+		ENDDO
+
+		DO J=Jbeg,Jend1
+		DO I=1,Nghost
+			Q_ground(I,J)=Q_ground(Ibeg,J)
+			Dv_ground(I,J)=Dv_ground(Ibeg,J)
+		ENDDO
+		ENDDO
+
+#	if defined(PARALLEL)
+	endif
+#	endif
+
+!	east
+#	if defined(PARALLEL)
+	if(	n_east .eq.	MPI_PROC_NULL	)then
+#	endif
+
+		DO J=1,Nloc
+		DO I=Iend1+1,Mloc1
+                        ETA_ground(I-1,J) = ETA_ground(Iend,J)
+			P_ground(I,J)=P_ground(Iend1,J)
+			Du_ground(I,J)=Du_ground(Iend1,J)
+		ENDDO
+		ENDDO
+
+		DO J=Jbeg,Jend1
+		DO I=Iend1,Mloc
+			Q_ground(I,J)=Q_ground(Iend,J)
+			Dv_ground(I,J)=Dv_ground(Iend,J)
+		ENDDO
+		ENDDO
+
+#	if defined(PARALLEL)
+	endif
+#	endif
+
+!	south
+#	if defined(PARALLEL)
+	if(	n_suth .eq.	MPI_PROC_NULL	)then
+#	endif
+
+		DO J=1,Nghost
+		DO I=1,Mloc
+                        ETA_ground(I,J) = ETA_ground(I,Jbeg)
+			Q_ground(I,J)=Q_ground(I,Jbeg)
+			Dv_ground(I,J)=Dv_ground(I,Jbeg)
+		ENDDO
+		ENDDO
+
+		DO J=1,Nghost
+		DO I=Ibeg,Iend1
+			P_ground(I,J)=P_ground(I,Jbeg)
+			Du_ground(I,J)=Du_ground(I,Jbeg)
+		ENDDO
+		ENDDO
+
+#	if defined(PARALLEL)
+	endif
+#	endif
+
+!	north
+#	if defined(PARALLEL)
+	if(	n_nrth .eq.	MPI_PROC_NULL	)then
+#	endif
+
+		DO J=Jend1+1,Nloc1
+		DO I=1,Mloc
+                        ETA_ground(I,J-1) = ETA_ground(I,Jend)
+			Q_ground(I,J)=Q_ground(I,Jend1)
+			Dv_ground(I,J)=Dv_ground(I,Jend1)
+		ENDDO
+		ENDDO
+
+		DO J=Jend1,Nloc
+		DO I=Ibeg,Iend1
+			P_ground(I,J)=P_ground(I,Jend)
+			Du_ground(I,J)=Du_ground(I,Jend)
+		ENDDO
+		ENDDO
+
+#	if defined(PARALLEL)
+	endif
+#	endif
+
+
+END SUBROUTINE FILLIN_GRN_GHOST
 
 END MODULE SUBSURFACE_MODULE
 # endif
