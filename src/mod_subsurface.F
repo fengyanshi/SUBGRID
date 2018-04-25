@@ -35,9 +35,9 @@ MODULE SUBSURFACE_MODULE
   REAL(SP),DIMENSION(:,:),ALLOCATABLE::PORO_ground,ETA_ground,P_ground,Q_ground, &
                          Du_ground,Su_ground,Dv_ground,Sv_ground,  &
                          KAu_ground,KAv_ground,DepthX,DepthY, &
-                         ETAu_ground,ETAv_ground
+                         ETAu_ground,ETAv_ground,POROSITY
   INTEGER, DIMENSION(:,:),ALLOCATABLE::MASK_ground,MASKu_ground,MASKv_ground
-  REAL(SP) :: S_constant,KA_constant
+  REAL(SP) :: S_constant,KA_constant,POR_constant
 
 #if defined (PARALLEL)
     REAL(SP) :: myvar
@@ -95,6 +95,21 @@ SUBROUTINE SUBSURFACE_INITIAL
 # endif
       ENDIF
 
+! constant porosity
+      CALL GET_Float_VAL(POR_constant,FILE_NAME,'POR_constant',line,ierr)
+      IF(ierr==1)THEN
+        POR_constant = 0.3
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A80)')'POROSITY: Use default,', '0.3'
+         WRITE(3,'(A80)')'POROSITY: Use default,', '0.3'
+      endif
+# else
+         WRITE(*,'(A80)')'POROSITY: Use default,', '0.3'
+         WRITE(3,'(A80)')'POROSITY: Use default,', '0.3'
+# endif
+      ENDIF
+
       CALL GET_Float_VAL(S_constant,FILE_NAME,'HardBottom',line,ierr)
       IF(ierr==1)THEN
         S_constant = MaxDepth
@@ -117,6 +132,7 @@ SUBROUTINE SUBSURFACE_INITIAL
                  Su_ground(Mloc1,Nloc),Sv_ground(Mloc,Nloc1), &
                  KAu_ground(Mloc1,Nloc),KAv_ground(Mloc,Nloc1), &
                  MASK_ground(Mloc,Nloc),MASKu_ground(Mloc1,Nloc), &
+                 POROSITY(Mloc,Nloc), &
                  MASKv_ground(Mloc,Nloc1), &
                  DepthX(Mloc1,Nloc),DepthY(Mloc,Nloc1), &
                  ETAu_ground(Mloc1,Nloc),ETAv_ground(Mloc,Nloc1))
@@ -138,6 +154,7 @@ SUBROUTINE SUBSURFACE_INITIAL
     Sv_ground = S_constant
     KAu_ground = KA_constant 
     KAv_ground = KA_constant
+    POROSITY = POR_constant
 
 ! depthx and depthy
 
@@ -262,8 +279,8 @@ SUBROUTINE UPDATE_SUBSURFACE
      DO I=Ibeg,Iend
        IF(MASK(I,J)==0)THEN
          ETA_ground(I,J) = ETA_ground(I,J)  &
-              -(P_ground(I+1,J)-P_ground(I,J))*dt_over_dx  &
-              -(Q_ground(I,J+1)-Q_ground(I,J))*dt_over_dy 
+              -POROSITY(I,J)*((P_ground(I+1,J)-P_ground(I,J))*dt_over_dx  &
+              +(Q_ground(I,J+1)-Q_ground(I,J))*dt_over_dy)
        ELSE
          ETA_ground(I,J) = ETA(I,J)
        ENDIF
