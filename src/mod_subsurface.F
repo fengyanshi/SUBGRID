@@ -210,7 +210,7 @@ SUBROUTINE UPDATE_GROUND_MASK_ETA
 
     DO J=1,Nloc
     DO I=1,Mloc1
-      IF(MASKu_ground(I,J) == 1)THEN
+      IF(MASKu(I,J) == 0)THEN
         Du_ground(I,J) = Su_ground(I,J) +ETAu_ground(I,J)
       ELSE
         Du_ground(I,J) = Su_ground(I,J)-DepthX(I,J)
@@ -220,7 +220,7 @@ SUBROUTINE UPDATE_GROUND_MASK_ETA
 
     DO J=1,Nloc1
     DO I=1,Mloc
-      IF(MASKv_ground(I,J) == 1)THEN
+      IF(MASKv(I,J) == 0)THEN
         Dv_ground(I,J) = Sv_ground(I,J) +ETAv_ground(I,J)
       ELSE
         Dv_ground(I,J) = Sv_ground(I,J)-DepthY(I,J)
@@ -260,7 +260,7 @@ SUBROUTINE UPDATE_SUBSURFACE
 
      DO J=Jbeg,Jend
      DO I=Ibeg,Iend
-       IF(MASK_ground(I,J)==1)THEN
+       IF(MASK(I,J)==0)THEN
          ETA_ground(I,J) = ETA_ground(I,J)  &
               -(P_ground(I+1,J)-P_ground(I,J))*dt_over_dx  &
               -(Q_ground(I,J+1)-Q_ground(I,J))*dt_over_dy 
