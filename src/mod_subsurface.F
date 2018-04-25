@@ -83,15 +83,15 @@ SUBROUTINE SUBSURFACE_INITIAL
 
       CALL GET_Float_VAL(KA_constant,FILE_NAME,'Kappa',line,ierr)
       IF(ierr==1)THEN
-        KA_constant = 0.001
+        KA_constant = 0.01
 # if defined (PARALLEL)
       if (myid.eq.0) THEN
-         WRITE(*,'(A80)')'Kappa: Use default,', '0.001'
-         WRITE(3,'(A80)')'Kappa: Use default,', '0.001'
+         WRITE(*,'(A80)')'Kappa: Use default,', '0.01'
+         WRITE(3,'(A80)')'Kappa: Use default,', '0.01'
       endif
 # else
-         WRITE(*,'(A80)')'Kappa: Use default,', '0.001'
-         WRITE(3,'(A80)')'Kappa: Use default,', '0.001'
+         WRITE(*,'(A80)')'Kappa: Use default,', '0.01'
+         WRITE(3,'(A80)')'Kappa: Use default,', '0.01'
 # endif
       ENDIF
 
