@@ -279,7 +279,7 @@ SUBROUTINE UPDATE_SUBSURFACE
      DO I=Ibeg,Iend
        IF(MASK(I,J)==0)THEN
          ETA_ground(I,J) = ETA_ground(I,J)  &
-              -POROSITY(I,J)*((P_ground(I+1,J)-P_ground(I,J))*dt_over_dx  &
+              -1.0_SP/POROSITY(I,J)*((P_ground(I+1,J)-P_ground(I,J))*dt_over_dx  &
               +(Q_ground(I,J+1)-Q_ground(I,J))*dt_over_dy)
        ELSE
          ETA_ground(I,J) = ETA(I,J)
