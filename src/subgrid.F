@@ -2,6 +2,9 @@
 
 SUBROUTINE UPDATE_SUBGRID
      USE GLOBAL
+# if defined (SUBSURFACE)
+     USE SUBSURFACE_MODULE
+# endif
      IMPLICIT NONE
      REAL(SP) :: AvgEta,TmpEta,tmpv1,tmpv2,tmpv3,tmpv4
      INTEGER  :: Ktmp,tmpk1,tmpk2,pcount,pcount1,pcount2
@@ -123,6 +126,9 @@ SUBROUTINE UPDATE_SUBGRID
 !      IF(pcount<SubMainGridRatio)THEN   ! at least one row/column get wet
          H(I,J)=ZERO
          MASK(I,J)=0
+# if defined (SUBSURFACE)
+         ETA(I,J)=ETA_ground(I,J)
+# endif
        ELSE
          H(I,J)=tmpv2/REAL(NumPixel)
          Porosity(I,J)=REAL(pcount)/REAL(NumPixel)
@@ -131,6 +137,12 @@ SUBROUTINE UPDATE_SUBGRID
      ENDDO
      ENDDO
 
+# endif
+# endif
+
+# if defined (SUBSURFACE)
+# if defined (PARALLEL)
+     CALL PHI_EXCH_1(ETA)
 # endif
 # endif
 
