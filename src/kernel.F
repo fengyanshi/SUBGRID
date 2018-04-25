@@ -723,28 +723,43 @@ END	SUBROUTINE STRUCTURE_CONDITIONS
 SUBROUTINE CALCULATE_H_PQ_UV
 
 		USE	GLOBAL
+
+# if defined (SUBSURFACE)
+     USE SUBSURFACE_MODULE
+# endif
 		IMPLICIT NONE
 		REAL(SP) ::	Utotal,Utheta,Fr
 
 !	P	and	Q
 		DO J=Jbeg,Jend
 		DO I=Ibeg,Iend1
-		 P(I,J)	=	-	A_u(I,J)*(ETA(I,J)-ETA(I-1,J))/DX	+	B(I,J)
-		 P(I,J)	=	P(I,J)*MASKu(I,J)
-		 U(I,J)	=	P(I,J)/MAX(MinDepth,H_u(I,J))
+# if defined (SUBSURFACE)
+               IF(MASKu(I,J)==0)THEN
+                 P(I,J)=P_ground(I,J)
+               ELSE
+		 P(I,J)	=-A_u(I,J)*(ETA(I,J)-ETA(I-1,J))/DX+B(I,J)
+               ENDIF
+# else
+                 P(I,J)	=-A_u(I,J)*(ETA(I,J)-ETA(I-1,J))/DX+B(I,J)
+		 P(I,J)	=P(I,J)*MASKu(I,J)
+# endif
+		 U(I,J)	=P(I,J)/MAX(MinDepth,H_u(I,J))
 		ENDDO
 		ENDDO
-
-!print*,'P',P(48,51),P(49,51),P(50,51),P(51,51)
-!print*,'Au',A_u(48,51),A_u(49,51),A_u(50,51),A_u(51,51)
-!print*,'B',B(48,51),B(49,51),B(50,51),B(51,51)
-!print*,'Eta',Eta(47,51)-Eta(48,51),Eta(48,51)-Eta(49,51),Eta(49,51)-Eta(50,51),Eta(50,51)-Eta(51,51)
 
 		DO J=Jbeg,Jend1
 		DO I=Ibeg,Iend
-		 Q(I,J)	=	-	A_v(I,J)*(ETA(I,J)-ETA(I,J-1))/DY	+	C(I,J)
-		 Q(I,J)	=	Q(I,J)*MASKv(I,J)
-		 V(I,J)	=	Q(I,J)/MAX(MinDepth,H_v(I,J))
+# if defined (SUBSURFACE)
+               IF(MASKv(I,J)==0)THEN
+                 Q(I,J)=Q_ground(I,J)
+               ELSE
+		 Q(I,J)	=-A_v(I,J)*(ETA(I,J)-ETA(I,J-1))/DY+C(I,J)
+               ENDIF
+# else
+                 Q(I,J)	=-A_v(I,J)*(ETA(I,J)-ETA(I,J-1))/DY+C(I,J)
+		 Q(I,J)	=Q(I,J)*MASKv(I,J)
+# endif
+		 V(I,J)	=Q(I,J)/MAX(MinDepth,H_v(I,J))
 		ENDDO
 		ENDDO
 
