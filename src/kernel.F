@@ -1025,11 +1025,11 @@ SUBROUTINE CALCULATE_ABC
 		 IF(IMPLICIT)THEN
 			 A_u(I,J)=grav*H_u(I,J)*H_u(I,J)*DT	&
 							 /(Max(MinDepth,H_u(I,J))	+	FrcU*DT)
-# if defined (SUBSURFACE)
+!# if defined (SUBSURFACE)
    ! do nothing
-# else
+!# else
 			 A_u(I,J)=A_u(I,J)*MASKu(I,J)
-# endif
+!# endif
 			 B(I,J)=DT/(1.0_SP+FrcU*DT/MAX(MinDepth,H_u(I,J))) &
 						 *(Cori(I,J)*0.25_SP*(Q(I,J)+Q(I,J+1)+Q(I-1,J)+Q(I-1,J+1)) &
 							-	Nonlinear*upwind	&
@@ -1133,11 +1133,11 @@ SUBROUTINE CALCULATE_ABC
 							+	Q(I,J)/DT	)
 		 ENDIF
 
-# if defined (SUBSURFACE)
+!# if defined (SUBSURFACE)
    ! do nothing
-# else
+!# else
 		 C(I,J)=C(I,J)*MASKv(I,J)
-# endif
+!# endif
 		ENDDO
 		ENDDO
 
