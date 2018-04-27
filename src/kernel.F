@@ -844,7 +844,6 @@ SUBROUTINE FILLIN_BOUNDARY_GHOST
 		ENDDO
 		ENDDO
 
-#	if defined(FREESLIP_BC)
 		DO J=Jbeg,Jend1
 		DO I=1,Nghost
 			MASKv(I,J)=MASKv(Ibeg,J)
@@ -852,7 +851,6 @@ SUBROUTINE FILLIN_BOUNDARY_GHOST
 			H_v(I,J)=H_v(Ibeg,J)
 		ENDDO
 		ENDDO
-#	endif
 
 #	if defined(PARALLEL)
 	endif
@@ -871,7 +869,6 @@ SUBROUTINE FILLIN_BOUNDARY_GHOST
 		ENDDO
 		ENDDO
 
-#	if defined(FREESLIP_BC)
 		DO J=Jbeg,Jend1
 		DO I=Iend1,Mloc
 			MASKv(I,J)=MASKv(Iend,J)
@@ -879,7 +876,6 @@ SUBROUTINE FILLIN_BOUNDARY_GHOST
 			H_v(I,J)=H_v(Iend,J)
 		ENDDO
 		ENDDO
-#	endif
 
 #	if defined(PARALLEL)
 	endif
@@ -898,7 +894,6 @@ SUBROUTINE FILLIN_BOUNDARY_GHOST
 		ENDDO
 		ENDDO
 
-#	if defined(FREESLIP_BC)
 		DO J=1,Nghost
 		DO I=Ibeg,Iend1
 			MASKu(I,J)=MASKu(I,Jbeg)
@@ -906,7 +901,6 @@ SUBROUTINE FILLIN_BOUNDARY_GHOST
 			H_u(I,J)=H_u(I,Jbeg)
 		ENDDO
 		ENDDO
-#	endif
 
 #	if defined(PARALLEL)
 	endif
@@ -925,7 +919,6 @@ SUBROUTINE FILLIN_BOUNDARY_GHOST
 		ENDDO
 		ENDDO
 
-#	if defined(FREESLIP_BC)
 		DO J=Jend1,Nloc
 		DO I=Ibeg,Iend1
 			MASKu(I,J)=MASKu(I,Jend)
@@ -933,7 +926,6 @@ SUBROUTINE FILLIN_BOUNDARY_GHOST
 			H_u(I,J)=H_u(I,Jend)
 		ENDDO
 		ENDDO
-#	endif
 
 #	if defined(PARALLEL)
 	endif
@@ -1039,11 +1031,8 @@ SUBROUTINE CALCULATE_ABC
 		 IF(IMPLICIT)THEN
 			 A_u(I,J)=grav*H_u(I,J)*H_u(I,J)*DT	&
 							 /(Max(MinDepth,H_u(I,J))	+	FrcU*DT)
-# if defined (SUBSURFACE)
-   ! do nothing
-# else
 			 A_u(I,J)=A_u(I,J)*MASKu(I,J)
-# endif
+
 			 B(I,J)=DT/(1.0_SP+FrcU*DT/MAX(MinDepth,H_u(I,J))) &
 						 *(Cori(I,J)*0.25_SP*(Q(I,J)+Q(I,J+1)+Q(I-1,J)+Q(I-1,J+1)) &
 							-	Nonlinear*upwind	&
@@ -1051,11 +1040,9 @@ SUBROUTINE CALCULATE_ABC
 							+	NU*(Rxx	+	Rxy) &
 							+	P(I,J)/DT	)
 		 ENDIF
-# if defined (SUBSURFACE)
-   ! do nothing
-# else
+
 		 B(I,J)=B(I,J)*MASKu(I,J)
-# endif
+
 		ENDDO
 		ENDDO
 
@@ -1134,11 +1121,9 @@ SUBROUTINE CALCULATE_ABC
 		 IF(IMPLICIT)THEN
 			 A_v(I,J)=grav*H_v(I,J)*H_v(I,J)*DT	&
 							 /(Max(MinDepth,H_v(I,J))	+	FrcV*DT)
-# if defined (SUBSURFACE)
-   ! do nothing
-# else
+
 			 A_v(I,J)=A_v(I,J)*MASKv(I,J)
-# endif
+
 			 C(I,J)=DT/(1.0_SP+FrcV*DT/MAX(Mindepth,H_v(I,J))) &
 						 *(-Cori(I,J)*0.25_SP*(P(I,J)+P(I+1,J)+P(I,J-1)+P(I+1,J-1))	&
 							-	Nonlinear*upwind	&
@@ -1147,11 +1132,9 @@ SUBROUTINE CALCULATE_ABC
 							+	Q(I,J)/DT	)
 		 ENDIF
 
-# if defined (SUBSURFACE)
-   ! do nothing
-# else
+
 		 C(I,J)=C(I,J)*MASKv(I,J)
-# endif
+
 		ENDDO
 		ENDDO
 
@@ -1947,6 +1930,9 @@ END	SUBROUTINE HOPSCOTCH_SCHEME
 #	else
 SUBROUTINE HOPSCOTCH_SCHEME
 		USE	GLOBAL
+# if defined (SUBSURFACE)
+      USE SUBSURFACE_MODULE
+# endif
 		IMPLICIT NONE
 		REAL ::	incr1,incr2,poro
 
@@ -1970,6 +1956,22 @@ SUBROUTINE HOPSCOTCH_SCHEME
                          - DT/DX*(B(I+1,J)-B(I,J)) &
                          - DT/DY*(C(I,J+1)-C(I,J))
 
+# if defined (SUBSURFACE)
+                 IF(MASK(I,J)>0.AND.MASKu(I,J)==0)THEN
+                   incr1=incr1+DT/DX2*P_ground(I,J)
+                 ENDIF
+                 IF(MASK(I,J)>0.AND.MASKu(I+1,J)==0)THEN
+                   incr1=incr1-DT/DX2*P_ground(I+1,J)
+                 ENDIF
+                 IF(MASK(I,J)>0.AND.MASKv(I,J)==0)THEN
+                   incr1=incr1+DT/DY2*Q_ground(I,J)
+                 ENDIF
+                 IF(MASK(I,J)>0.AND.MASKv(I,J+1)==0)THEN
+                   incr1=incr1+DT/DY2*Q_ground(I,J+1)
+                 ENDIF
+
+# endif
+
                  ETA(I,J)=ETA(I,J) + incr1/poro
 
 		ENDDO
@@ -1986,15 +1988,32 @@ SUBROUTINE HOPSCOTCH_SCHEME
 		 ENDIF
 
 		 incr1 = DT/DX2*(A_u(I+1,J)*ETA(I+1,J) &
-																	 +A_u(I,J)*ETA(I-1,J)) &
-												 + DT/DY2*(A_v(I,J+1)*ETA(I,J+1) &
-																	 +A_v(I,J)*ETA(I,J-1)) &
-												 - DT/DX*(B(I+1,J)-B(I,J)) &
-												 - DT/DY*(C(I,J+1)-C(I,J))
-		 incr2 = DT/DX2*(A_u(I+1,J)	+	A_u(I,J))	&
-												 + DT/DY2*(A_v(I,J+1)	+	A_v(I,J))
+                         +A_u(I,J)*ETA(I-1,J)) &
+                         + DT/DY2*(A_v(I,J+1)*ETA(I,J+1) &
+                         +A_v(I,J)*ETA(I,J-1)) &
+                         - DT/DX*(B(I+1,J)-B(I,J)) &
+                         - DT/DY*(C(I,J+1)-C(I,J))
 
-			 ETA(I,J)	=	(ETA(I,J)*poro + incr1)/(poro+incr2)
+# if defined (SUBSURFACE)
+                 IF(MASK(I,J)>0.AND.MASKu(I,J)==0)THEN
+                   incr1=incr1+DT/DX2*P_ground(I,J)
+                 ENDIF
+                 IF(MASK(I,J)>0.AND.MASKu(I+1,J)==0)THEN
+                   incr1=incr1-DT/DX2*P_ground(I+1,J)
+                 ENDIF
+                 IF(MASK(I,J)>0.AND.MASKv(I,J)==0)THEN
+                   incr1=incr1+DT/DY2*Q_ground(I,J)
+                 ENDIF
+                 IF(MASK(I,J)>0.AND.MASKv(I,J+1)==0)THEN
+                   incr1=incr1+DT/DY2*Q_ground(I,J+1)
+                 ENDIF
+
+# endif
+
+		 incr2 = DT/DX2*(A_u(I+1,J)+A_u(I,J))	&
+                         + DT/DY2*(A_v(I,J+1)+A_v(I,J))
+
+                 ETA(I,J)=(ETA(I,J)*poro + incr1)/(poro+incr2)
 
 		ENDDO
 		ENDDO
@@ -2023,7 +2042,75 @@ SUBROUTINE HOPSCOTCH_SCHEME
 #	endif
 #	endif
 
-print*,
+        CALL FILLIN_ETA_GHOST
+
 
 END	SUBROUTINE HOPSCOTCH_SCHEME
+
+SUBROUTINE FILLIN_ETA_GHOST
+		USE	GLOBAL
+		IMPLICIT NONE
+
+!	west
+#	if defined(PARALLEL)
+	if(	n_west .eq.	MPI_PROC_NULL	)then
+#	endif
+
+		DO J=1,Nloc
+		DO I=1,Nghost
+			ETA(I,J)=ETA(Ibeg,J)
+		ENDDO
+		ENDDO
+
+#	if defined(PARALLEL)
+	endif
+#	endif
+
+!	east
+#	if defined(PARALLEL)
+	if(	n_east .eq.	MPI_PROC_NULL	)then
+#	endif
+
+		DO J=1,Nloc
+		DO I=Iend+1,Mloc
+			ETA(I,J)=ETA(Iend,J)
+		ENDDO
+		ENDDO
+
+#	if defined(PARALLEL)
+	endif
+#	endif
+
+!	south
+#	if defined(PARALLEL)
+	if(	n_suth .eq.	MPI_PROC_NULL	)then
+#	endif
+
+		DO J=1,Nghost
+		DO I=1,Mloc
+			ETA(I,J)=ETA(I,Jbeg)
+		ENDDO
+		ENDDO
+
+#	if defined(PARALLEL)
+	endif
+#	endif
+
+!	north
+#	if defined(PARALLEL)
+	if(	n_nrth .eq.	MPI_PROC_NULL	)then
+#	endif
+
+		DO J=Jend+1,Nloc
+		DO I=1,Mloc
+			ETA(I,J)=ETA(I,Jend)
+		ENDDO
+		ENDDO
+
+#	if defined(PARALLEL)
+	endif
+#	endif
+
+END	SUBROUTINE FILLIN_ETA_GHOST
+
 #	endif

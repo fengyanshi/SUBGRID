@@ -21,7 +21,6 @@
 #            FLAG_11 = -DVEGETATION
 #            FLAG_12 = -DECO_MORPHOLOGY
 #            FLAG_13 = -DFREESLIP_BC
-#             FLAG_14 = -DDEBUG
              FLAG_15 = -DSUBSURFACE
 #--------------------------------------------------------------------------
 #  mpi defs 

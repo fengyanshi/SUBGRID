@@ -52,7 +52,7 @@ end
 if(0)
 for i=Mglob-1:-1:1
     fprintf(fp,'%10d %10d\n',i,Nglob);
-    fprintf(fp,'%10.2f %10.2f %10.2f\n',TidePeriod,TideAmp,TidePha);
+    fprintf(fp,'%10.5f %10.5f %10.5f\n',TidePeriod,TideAmp,TidePha);
 end
 end
 
@@ -60,7 +60,7 @@ end
 if(0)
 for j=2:Nglob-1
     fprintf(fp,'%10d %10d\n',1,j);
-    fprintf(fp,'%10.2f %10.2f %10.2f\n',TidePeriod,TideAmp,TidePha);
+    fprintf(fp,'%10.5f %10.5f %10.5f\n',TidePeriod,TideAmp,TidePha);
 end
 end
 

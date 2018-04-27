@@ -96,7 +96,7 @@ SUBROUTINE SUBSURFACE_INITIAL
       ENDIF
 
 ! constant porosity
-      CALL GET_Float_VAL(POR_constant,FILE_NAME,'POR_constant',line,ierr)
+      CALL GET_Float_VAL(POR_constant,FILE_NAME,'POROSITY_GROUND',line,ierr)
       IF(ierr==1)THEN
         POR_constant = 0.3
 # if defined (PARALLEL)
