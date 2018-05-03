@@ -1,0 +1,91 @@
+!INPUT FILE FOR SUBGRID MODEL
+  ! NOTE: all input parameter are capital sensitive
+  ! --------------------TITLE-------------------------------------
+  ! title only for log file
+TITLE = TEST RUN
+  ! -------------------HOT START---------------------------------
+HOT_START = F
+FileNumber_HOTSTART = 1
+  ! -------------------PARALLEL INFO-----------------------------
+  ! 
+  !    PX,PY - processor numbers in X and Y
+  !    NOTE: make sure consistency with mpirun -np n (px*py)
+  !    
+PX = 2
+PY = 1
+  ! --------------------DEPTH-------------------------------------
+SubMainGridRatio = 1
+DEPTH_FILE = depth.txt
+  ! -------------------PRINT---------------------------------
+  ! result folder
+RESULT_FOLDER = /Users/fengyanshi15/tmp1/
+  ! ------------------DIMENSION-----------------------------
+  ! global grid dimension
+Mglob = 264
+Nglob = 3
+  ! ----------------- TIME----------------------------------
+  ! time: total computational time/ plot time / screen interval 
+  ! all in seconds
+TOTAL_TIME = 1000.0
+PLOT_INTV = 10.0
+PLOT_INTV_STATION = 30.0
+SCREEN_INTV = 30.0
+  ! -----------------GRID----------------------------------
+DX = 0.02
+DY = 0.02
+  ! ---------------- PERIODIC BOUNDARY CONDITION ---------
+  ! South-North periodic boundary condition
+  !
+PERIODIC_X = F
+PERIODIC_Y = F
+  ! ----------------PHYSICS------------------------------
+  ! parameters to control type of equations
+Nonlinear = 0
+Cd_fixed = 0.002
+
+  ! ----------------NUMERICS----------------------------
+ADI = F
+HOPSCOTCH = T
+  ! CFL
+CFL = 0.5
+  ! Froude Number Cap (to avoid jumping drop, set 10)
+FroudeCap = 3.0
+
+TIDE_CLAMPED = T
+TIDE_FILE = tide_1bc.txt
+
+  ! --------------WET-DRY-------------------------------
+  ! MinDepth for wetting-drying
+MinDepth=0.001
+  ! ----------------- COUPLING -------------------------
+  ! if do coupling, have to set -DCOUPLING in Makefile
+COUPLING_FILE = coupling.txt
+  ! -----------------OUTPUT-----------------------------
+  ! stations 
+  ! if NumberStations>0, need input i,j in STATION_FILE
+NumberStations = 0
+STATIONS_FILE = station.txt
+  ! output variables, T=.TRUE, F = .FALSE.
+DEPTH_OUT = T
+U = T
+V = T
+ETA = T
+MASK = T
+P = T
+Q = T
+TMP = F
+!  -------- subsurface
+Kappa = 0.001
+POROSITY_GROUND = 0.3
+P_GROUND = T 
+Q_GROUND = T
+ETA_GROUND = T
+MASK_GROUND = T
+MASKu_GROUND = T
+MASKv_GROUND = T
+!  ---------------------
+
+
+
+
+
