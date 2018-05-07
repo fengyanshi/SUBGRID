@@ -75,7 +75,7 @@ P = T
 Q = T
 TMP = F
 !  -------- subsurface
-Kappa = 0.001
+Kappa = 0.01
 POROSITY_GROUND = 0.3
 P_GROUND = T 
 Q_GROUND = T
