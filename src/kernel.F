@@ -1958,16 +1958,16 @@ SUBROUTINE HOPSCOTCH_SCHEME
 
 # if defined (SUBSURFACE)
                  IF(MASK(I,J)>0.AND.MASKu(I,J)==0)THEN
-                   incr1=incr1+DT/DX2*P_ground(I,J)
+                   incr1=incr1+DT/DX*P_ground(I,J)
                  ENDIF
                  IF(MASK(I,J)>0.AND.MASKu(I+1,J)==0)THEN
-                   incr1=incr1-DT/DX2*P_ground(I+1,J)
+                   incr1=incr1-DT/DX*P_ground(I+1,J)
                  ENDIF
                  IF(MASK(I,J)>0.AND.MASKv(I,J)==0)THEN
-                   incr1=incr1+DT/DY2*Q_ground(I,J)
+                   incr1=incr1+DT/DY*Q_ground(I,J)
                  ENDIF
                  IF(MASK(I,J)>0.AND.MASKv(I,J+1)==0)THEN
-                   incr1=incr1+DT/DY2*Q_ground(I,J+1)
+                   incr1=incr1+DT/DY*Q_ground(I,J+1)
                  ENDIF
 
 # endif
@@ -1996,16 +1996,16 @@ SUBROUTINE HOPSCOTCH_SCHEME
 
 # if defined (SUBSURFACE)
                  IF(MASK(I,J)>0.AND.MASKu(I,J)==0)THEN
-                   incr1=incr1+DT/DX2*P_ground(I,J)
+                   incr1=incr1+DT/DX*P_ground(I,J)
                  ENDIF
                  IF(MASK(I,J)>0.AND.MASKu(I+1,J)==0)THEN
-                   incr1=incr1-DT/DX2*P_ground(I+1,J)
+                   incr1=incr1-DT/DX*P_ground(I+1,J)
                  ENDIF
                  IF(MASK(I,J)>0.AND.MASKv(I,J)==0)THEN
-                   incr1=incr1+DT/DY2*Q_ground(I,J)
+                   incr1=incr1+DT/DY*Q_ground(I,J)
                  ENDIF
                  IF(MASK(I,J)>0.AND.MASKv(I,J+1)==0)THEN
-                   incr1=incr1+DT/DY2*Q_ground(I,J+1)
+                   incr1=incr1+DT/DY*Q_ground(I,J+1)
                  ENDIF
 
 # endif
