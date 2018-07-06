@@ -3,7 +3,7 @@ fdir='/Users/fengyanshi15/tmp1/';
 
 dep=load('depth.txt');
 
-nfile=[1:80];
+nfile=[1:99];
 
 wid=10;
 len=3;
