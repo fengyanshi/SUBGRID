@@ -106,7 +106,7 @@ PROGRAM	SUBGRID_MODEL
 		 ! tide	boundary
 		 IF(TIDE_CLAMPED)THEN
 			 CALL	TIDE_BC
-
+                         CALL FILLIN_ETA_GHOST
 # if defined (DEBUG)
 #    if defined (PARALLEL)
        IF(myid==0) WRITE(*,*) 'TIDE_BC'     
