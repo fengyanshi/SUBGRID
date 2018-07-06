@@ -750,30 +750,36 @@ SUBROUTINE CALCULATE_H_PQ_UV
 # if defined (SUBSURFACE)
                IF(MASKu(I,J)==0)THEN
                  P(I,J)=P_ground(I,J)
+                 U(I,J) =P(I,J)/MAX(MinDepth,Du_ground(I,J))
                ELSE
-   P(I,J) =-A_u(I,J)*(ETA(I,J)-ETA(I-1,J))/DX+B(I,J)
+                 P(I,J) =-A_u(I,J)*(ETA(I,J)-ETA(I-1,J))/DX+B(I,J)
+                 U(I,J) =P(I,J)/MAX(MinDepth,H_u(I,J))
                ENDIF
 # else
                  P(I,J) =-A_u(I,J)*(ETA(I,J)-ETA(I-1,J))/DX+B(I,J)
-   P(I,J) =P(I,J)*MASKu(I,J)
+                 P(I,J) =P(I,J)*MASKu(I,J)
+                 U(I,J) =P(I,J)/MAX(MinDepth,H_u(I,J))
 # endif
-   U(I,J) =P(I,J)/MAX(MinDepth,H_u(I,J))
   ENDDO
   ENDDO
+
 
   DO J=Jbeg,Jend1
   DO I=Ibeg,Iend
 # if defined (SUBSURFACE)
                IF(MASKv(I,J)==0)THEN
                  Q(I,J)=Q_ground(I,J)
+                 V(I,J) =Q(I,J)/MAX(MinDepth,Dv_ground(I,J))
                ELSE
-   Q(I,J) =-A_v(I,J)*(ETA(I,J)-ETA(I,J-1))/DY+C(I,J)
+                 Q(I,J) =-A_v(I,J)*(ETA(I,J)-ETA(I,J-1))/DY+C(I,J)
+                 V(I,J) =Q(I,J)/MAX(MinDepth,H_v(I,J))
                ENDIF
 # else
                  Q(I,J) =-A_v(I,J)*(ETA(I,J)-ETA(I,J-1))/DY+C(I,J)
-   Q(I,J) =Q(I,J)*MASKv(I,J)
+                 Q(I,J) =Q(I,J)*MASKv(I,J)
+                 V(I,J) =Q(I,J)/MAX(MinDepth,H_v(I,J))
 # endif
-   V(I,J) =Q(I,J)/MAX(MinDepth,H_v(I,J))
+   
   ENDDO
   ENDDO
 
@@ -1034,7 +1040,8 @@ SUBROUTINE CALCULATE_ABC
     A_u(I,J)=A_u(I,J)*MASKu(I,J)
 
     B(I,J)=DT/(1.0_SP+FrcU*DT/MAX(MinDepth,H_u(I,J))) &
-       *(Cori(I,J)*0.25_SP*(Q(I,J)+Q(I,J+1)+Q(I-1,J)+Q(I-1,J+1)) &
+       *(      &
+         Cori(I,J)*0.25_SP*(Q(I,J)+Q(I,J+1)+Q(I-1,J)+Q(I-1,J+1)) &
        - Nonlinear*upwind &
        - Nonlinear*(PQ(I,J+1)-PQ(I,J))/DY &
        + NU*(Rxx + Rxy) &
