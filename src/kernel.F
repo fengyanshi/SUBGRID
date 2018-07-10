@@ -243,15 +243,19 @@ PROGRAM SUBGRID_MODEL
 # if defined (SUBSURFACE)
      DO J=1,Nloc
      DO I=1,Mloc
-        IF (MASK(I,J)==0)THEN
-          ETA(I,J) = ETA_ground(I,J)
+!        IF (MASK(I,J)==0)THEN
+!          ETA(I,J) = ETA_ground(I,J)
+!        ENDIF
+        IF (MASK(I,J)==1)THEN
+          ETA_ground(I,J) = ETA(I,J)
         ENDIF
      ENDDO
      ENDDO
 
 # if defined (PARALLEL)
-     CALL PHI_EXCH_1(ETA)
+     CALL PHI_EXCH_1(ETA_ground)
 # endif
+
 # endif
 
 # if defined (DEBUG)
@@ -742,27 +746,37 @@ SUBROUTINE CALCULATE_H_PQ_UV
      USE SUBSURFACE_MODULE
 # endif
   IMPLICIT NONE
-  REAL(SP) :: Utotal,Utheta,Fr
+  REAL(SP) :: Utotal,Utheta,Fr,Pgrad
 
 ! P and Q
   DO J=Jbeg,Jend
   DO I=Ibeg,Iend1
-# if defined (SUBSURFACE)
+# if defined (SUBSURFACE) 
+!$$$
                IF(MASKu(I,J)==0)THEN
                  P(I,J)=P_ground(I,J)
                  U(I,J) =P(I,J)/MAX(MinDepth,Du_ground(I,J))
                ELSE
-                 P(I,J) =-A_u(I,J)*(ETA(I,J)-ETA(I-1,J))/DX+B(I,J)
+
+                 Pgrad=ETA(I,J)-ETA(I-1,J)
+                 IF(MASK(I-1,J)<1) Pgrad=MAX(ZERO,ETA(I,J)-EtaScreen(I-1,J)) 
+                 IF(MASK(I,J)<1) Pgrad=MIN(ZERO,EtaScreen(I,J)-Eta(I-1,J))       
+
+                 P(I,J) =-A_u(I,J)*Pgrad/DX+B(I,J)
                  U(I,J) =P(I,J)/MAX(MinDepth,H_u(I,J))
                ENDIF
 # else
-                 P(I,J) =-A_u(I,J)*(ETA(I,J)-ETA(I-1,J))/DX+B(I,J)
+                 Pgrad=ETA(I,J)-ETA(I-1,J)
+                 IF(MASK(I-1,J)<1) Pgrad=MAX(ZERO,ETA(I,J)-EtaScreen(I-1,J)) 
+                 IF(MASK(I,J)<1) Pgrad=MIN(ZERO,EtaScreen(I,J)-Eta(I-1,J))
+
+                 P(I,J) =-A_u(I,J)*Pgrad/DX+B(I,J)
                  P(I,J) =P(I,J)*MASKu(I,J)
                  U(I,J) =P(I,J)/MAX(MinDepth,H_u(I,J))
+
 # endif
   ENDDO
   ENDDO
-
 
   DO J=Jbeg,Jend1
   DO I=Ibeg,Iend
@@ -771,11 +785,21 @@ SUBROUTINE CALCULATE_H_PQ_UV
                  Q(I,J)=Q_ground(I,J)
                  V(I,J) =Q(I,J)/MAX(MinDepth,Dv_ground(I,J))
                ELSE
-                 Q(I,J) =-A_v(I,J)*(ETA(I,J)-ETA(I,J-1))/DY+C(I,J)
+
+                 Pgrad=ETA(I,J)-ETA(I,J-1)
+                 IF(MASK(I,J-1)<1) Pgrad=MAX(ZERO,ETA(I,J)-EtaScreen(I,J-1)) 
+                 IF(MASK(I,J)<1) Pgrad=MIN(ZERO,EtaScreen(I,J)-Eta(I,J-1))
+
+                 Q(I,J) =-A_v(I,J)*Pgrad/DY+C(I,J)
                  V(I,J) =Q(I,J)/MAX(MinDepth,H_v(I,J))
                ENDIF
 # else
-                 Q(I,J) =-A_v(I,J)*(ETA(I,J)-ETA(I,J-1))/DY+C(I,J)
+                 Pgrad=ETA(I,J)-ETA(I,J-1)
+                 IF(MASK(I,J-1)<1) Pgrad=MAX(ZERO,ETA(I,J)-EtaScreen(I,J-1))  
+                 IF(MASK(I,J)<1) Pgrad=MIN(ZERO,EtaScreen(I,J)-Eta(I,J-1))
+
+                 Q(I,J) =-A_v(I,J)*Pgrad/DY+C(I,J)
+
                  Q(I,J) =Q(I,J)*MASKv(I,J)
                  V(I,J) =Q(I,J)/MAX(MinDepth,H_v(I,J))
 # endif
@@ -1033,6 +1057,7 @@ SUBROUTINE CALCULATE_ABC
    IF(OUT_RESIST_FORCE)THEN
     TotResistFX(I,J)=rho_w*FrcU*U(I,J)
    ENDIF
+
 
    IF(IMPLICIT)THEN
     A_u(I,J)=grav*H_u(I,J)*H_u(I,J)*DT &
@@ -1963,7 +1988,8 @@ SUBROUTINE HOPSCOTCH_SCHEME
                          - DT/DX*(B(I+1,J)-B(I,J)) &
                          - DT/DY*(C(I,J+1)-C(I,J))
 
-# if defined (SUBSURFACE)
+# if defined (SUBSURFACE) 
+! $$$
                  IF(MASK(I,J)>0.AND.MASKu(I,J)==0)THEN
                    incr1=incr1+DT/DX*P_ground(I,J)
                  ENDIF
@@ -2001,7 +2027,8 @@ SUBROUTINE HOPSCOTCH_SCHEME
                          - DT/DX*(B(I+1,J)-B(I,J)) &
                          - DT/DY*(C(I,J+1)-C(I,J))
 
-# if defined (SUBSURFACE)
+# if defined (SUBSURFACE) 
+!$$$
                  IF(MASK(I,J)>0.AND.MASKu(I,J)==0)THEN
                    incr1=incr1+DT/DX*P_ground(I,J)
                  ENDIF
