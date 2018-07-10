@@ -271,10 +271,12 @@ SUBROUTINE SETUP_INITIAL_ETA_SUBGRID
        ENDDO
        IF(pcount==0)THEN
 # if defined (SUBSURFACE)
-          ETA(I,J) = ZERO
+          ETA(I,J) = -depmax
 # else
-          ETA(I,J)=-depmax-MinDepth
+!          ETA(I,J)=-depmax-MinDepth
+          ETA(I,J) = -depmax
 # endif
+          EtaScreen(I,J) = -depmax
           MASK(I,J) = 0
        ENDIF
 

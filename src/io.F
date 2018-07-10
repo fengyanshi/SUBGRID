@@ -1048,7 +1048,8 @@ SUBROUTINE STATIONS
           jjsta(i) = mod(dum2,SubMainGridRatio)
           ! in case ii=0
           if(iista(i)==0)iista(i)=SubMainGridRatio
-          if(jjsta(i)==0)jjsta(i)=SubMainGridRatio          
+          if(jjsta(i)==0)jjsta(i)=SubMainGridRatio      
+    
 # if defined (PARALLEL)
           ista(i) = Nghost+dum11-npx*Mglob/px
           jsta(i) = Nghost+dum22-npy*Nglob/py
@@ -1075,9 +1076,12 @@ SUBROUTINE STATIONS
           else
              nsta(i) = 0
           endif
+
 # endif
+
        enddo
      endif
+
 
 ! write to stations
 
@@ -1088,12 +1092,12 @@ SUBROUTINE STATIONS
           write (iunit,'(20E16.5)') time,  eta(ista(i),jsta(i)),&
                           u(ista(i),jsta(i)),v(ista(i),jsta(i)),&
                           p(ista(i),jsta(i)),q(ista(i),jsta(i)),&
-                          porosity(ista(i),jsta(i)),&
-                          etasubgrid(ista(i),jsta(i),iista(i),jjsta(i)),&
-                          ucsubgrid(ista(i),jsta(i),iista(i),jjsta(i)),&
-                          vcsubgrid(ista(i),jsta(i),iista(i),jjsta(i)),&
-                          tausubgrid(ista(i),jsta(i),iista(i),jjsta(i)),&
-                          totresistfx(ista(i),jsta(i)),totresistfy(ista(i),jsta(i))
+                          porosity(ista(i),jsta(i))
+                        ! &,   etasubgrid(ista(i),jsta(i),iista(i),jjsta(i)),&
+                        !  ucsubgrid(ista(i),jsta(i),iista(i),jjsta(i)),&
+                        !  vcsubgrid(ista(i),jsta(i),iista(i),jjsta(i)),&
+                        !  tausubgrid(ista(i),jsta(i),iista(i),jjsta(i)),&
+                        !  totresistfx(ista(i),jsta(i)),totresistfy(ista(i),jsta(i))
 # if defined(SEDIMENT)
                           &, con(ista(i),jsta(i))
 # endif

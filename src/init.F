@@ -13,7 +13,7 @@ SUBROUTINE INITIALIZATION
              H(Mloc,Nloc),H0(Mloc,Nloc),H_u(Mloc1,Nloc),H_v(Mloc,Nloc1), &
              Cori(Mloc,Nloc),Cdu(Mloc1,Nloc), Cdv(Mloc,Nloc1),&
              MASK(Mloc,Nloc), &
-             U(Mloc1,Nloc),V(Mloc,Nloc1))
+             U(Mloc1,Nloc),V(Mloc,Nloc1), EtaScreen(Mloc,Nloc))
 
     ALLOCATE(A_u(Mloc1,Nloc),A_v(Mloc,Nloc1),B(Mloc1,Nloc),C(Mloc,Nloc1), &
              MASKu(Mloc1,Nloc),MASKv(Mloc,Nloc1))
@@ -145,6 +145,7 @@ SUBROUTINE INITIALIZATION
     U=ZERO
     V=ZERO
     Eta=ZERO
+    EtaScreen=ZERO
     A_u=ZERO
     A_v=ZERO
     B=ZERO

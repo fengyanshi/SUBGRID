@@ -83,7 +83,7 @@ MODULE GLOBAL
     REAL(SP),DIMENSION(:,:),ALLOCATABLE :: &
         A_u, A_v, B, C, Eta, Eta0, &
         U, V, P, Q, PQ, SourceX, SourceY, &
-        Int2Flo, tmp4preview
+        Int2Flo, tmp4preview, EtaScreen
 
 ! depth H=Eta+Depth,
     REAL(SP),DIMENSION(:,:),ALLOCATABLE :: H,H0,H_u,H_v
