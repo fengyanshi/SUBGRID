@@ -18,21 +18,21 @@ SubMainGridRatio = 1
 DEPTH_FILE = depth.txt
   ! -------------------PRINT---------------------------------
   ! result folder
-RESULT_FOLDER = /Users/fengyanshi15/tmp1/
+RESULT_FOLDER = /Users/fengyanshi15/tmp3/
   ! ------------------DIMENSION-----------------------------
   ! global grid dimension
-Mglob = 264
+Mglob = 66
 Nglob = 3
   ! ----------------- TIME----------------------------------
   ! time: total computational time/ plot time / screen interval 
   ! all in seconds
 TOTAL_TIME = 1000.0
 PLOT_INTV = 10.0
-PLOT_INTV_STATION = 30.0
-SCREEN_INTV = 30.0
+PLOT_INTV_STATION = 2.0
+SCREEN_INTV = 10.0
   ! -----------------GRID----------------------------------
-DX = 0.02
-DY = 0.02
+DX = 0.08
+DY = 0.2
   ! ---------------- PERIODIC BOUNDARY CONDITION ---------
   ! South-North periodic boundary condition
   !
@@ -49,22 +49,22 @@ HOPSCOTCH = T
   ! CFL
 CFL = 0.5
   ! Froude Number Cap (to avoid jumping drop, set 10)
-FroudeCap = 3.0
+FroudeCap = 1.0
 
 TIDE_CLAMPED = T
 TIDE_FILE = tide_1bc.txt
 
   ! --------------WET-DRY-------------------------------
   ! MinDepth for wetting-drying
-MinDepth=0.001
+MinDepth=0.01
   ! ----------------- COUPLING -------------------------
   ! if do coupling, have to set -DCOUPLING in Makefile
 COUPLING_FILE = coupling.txt
   ! -----------------OUTPUT-----------------------------
   ! stations 
   ! if NumberStations>0, need input i,j in STATION_FILE
-NumberStations = 0
-STATIONS_FILE = station.txt
+NumberStations = 2
+STATIONS_FILE = gauges.txt
   ! output variables, T=.TRUE, F = .FALSE.
 DEPTH_OUT = T
 U = T

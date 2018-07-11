@@ -1967,6 +1967,7 @@ SUBROUTINE HOPSCOTCH_SCHEME
 # endif
   IMPLICIT NONE
   REAL :: incr1,incr2,poro
+  REAL :: Pgrad1,Pgrad2,Pgrad3,Pgrad4,eta_i1,eta_i2,eta_j1,eta_j2
 
   ! eta0: previous time step
   ETA0=ETA
@@ -1981,10 +1982,20 @@ SUBROUTINE HOPSCOTCH_SCHEME
     poro=1.0
    ENDIF
 
-   incr1 = DT/DX2*(A_u(I+1,J)*(ETA(I+1,J)-ETA(I,J)) &
-                         -A_u(I,J)*(ETA(I,J)-ETA(I-1,J))) &
-                         + DT/DY2*(A_v(I,J+1)*(ETA(I,J+1)-ETA(I,J)) &
-                         -A_v(I,J)*(ETA(I,J)-ETA(I,J-1))) &
+   Pgrad1 = ETA(I+1,J)-ETA(I,J)
+   Pgrad2 = ETA(I,J)-ETA(I-1,J)
+   Pgrad3 = ETA(I,J+1)-ETA(I,J)
+   Pgrad4 = ETA(I,J)-ETA(I,J-1)
+  
+   IF(MASK(I+1,J)<1) Pgrad1=MIN(ZERO,EtaScreen(I+1,J)-Eta(I,J))
+   IF(MASK(I-1,J)<1) Pgrad2=MAX(ZERO,Eta(I,J)-EtaScreen(I-1,J))
+   IF(MASK(I,J+1)<1) Pgrad3=MIN(ZERO,EtaScreen(I,J+1)-Eta(I,J))
+   IF(MASK(I,J-1)<1) Pgrad4=MAX(ZERO,Eta(I,J)-EtaScreen(I,J-1))
+
+   incr1 = DT/DX2*(A_u(I+1,J)*Pgrad1 &
+                         -A_u(I,J)*Pgrad2) &
+                         + DT/DY2*(A_v(I,J+1)*Pgrad3 &
+                         -A_v(I,J)*Pgrad4) &
                          - DT/DX*(B(I+1,J)-B(I,J)) &
                          - DT/DY*(C(I,J+1)-C(I,J))
 
@@ -2020,10 +2031,38 @@ SUBROUTINE HOPSCOTCH_SCHEME
     poro=1.0
    ENDIF
 
-   incr1 = DT/DX2*(A_u(I+1,J)*ETA(I+1,J) &
-                         +A_u(I,J)*ETA(I-1,J)) &
-                         + DT/DY2*(A_v(I,J+1)*ETA(I,J+1) &
-                         +A_v(I,J)*ETA(I,J-1)) &
+   eta_i1=ETA(I+1,J)
+   Pgrad1 = 1.0_SP
+   IF(MASK(I+1,J)<1) THEN
+     eta_i1 = EtaScreen(I+1,J)
+     IF(EtaScreen(I+1,J)-ETA(I,J)>ZERO) Pgrad1 = ZERO
+   ENDIF
+
+   eta_i2=ETA(I-1,J)
+   Pgrad2 = 1.0_SP
+   IF(MASK(I-1,J)<1) THEN
+     eta_i2 = EtaScreen(I-1,J)
+     IF(ETA(I,J)-EtaScreen(I-1,J)<ZERO) Pgrad2 = ZERO
+   ENDIF
+
+   eta_j1=ETA(I,J+1)
+   Pgrad3 = 1.0_SP
+   IF(MASK(I,J+1)<1) THEN
+     eta_j1 = EtaScreen(I,J+1)
+     IF(EtaScreen(I,J-1)-ETA(I,J)>ZERO) Pgrad3 = ZERO
+   ENDIF
+
+   eta_j2=ETA(I,J-1)
+   Pgrad4 = 1.0_SP
+   IF(MASK(I,J-1)<1) THEN
+     eta_j2 = EtaScreen(I,J-1)
+     IF(ETA(I,J)-EtaScreen(I,J-1)<ZERO) Pgrad4 = ZERO
+   ENDIF
+
+   incr1 = DT/DX2*(A_u(I+1,J)*eta_i1*Pgrad1 &
+                         +A_u(I,J)*eta_i2*Pgrad2) &
+                         + DT/DY2*(A_v(I,J+1)*eta_j1*Pgrad3 &
+                         +A_v(I,J)*eta_j2*Pgrad4) &
                          - DT/DX*(B(I+1,J)-B(I,J)) &
                          - DT/DY*(C(I,J+1)-C(I,J))
 
@@ -2044,8 +2083,8 @@ SUBROUTINE HOPSCOTCH_SCHEME
 
 # endif
 
-   incr2 = DT/DX2*(A_u(I+1,J)+A_u(I,J)) &
-                         + DT/DY2*(A_v(I,J+1)+A_v(I,J))
+   incr2 = DT/DX2*(A_u(I+1,J)*Pgrad1+A_u(I,J)*Pgrad2) &
+                         + DT/DY2*(A_v(I,J+1)*Pgrad3+A_v(I,J)*Pgrad4)
 
                  ETA(I,J)=(ETA(I,J)*poro + incr1)/(poro+incr2)
 

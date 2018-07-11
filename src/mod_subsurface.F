@@ -13,7 +13,7 @@ MODULE SUBSURFACE_MODULE
                     H,H0,H_u,H_v,ETA,U,V,P,Q,PQ,  &
                     MASK,MASKu,MASKv,MaxDepth, &
                     MinDepth,MASK,DT,tmp4preview, &
-                    dt_over_dx,dt_over_dy
+                    dt_over_dx,dt_over_dy,TIME
                  
   USE INPUT_Util
 #if defined (PARALLEL)
@@ -156,14 +156,7 @@ SUBROUTINE SUBSURFACE_INITIAL
     KAv_ground = KA_constant
     POROgrn = POR_constant
 
-! depthx and depthy
-
-! when first time calculate H_u and H_v, they represent depthx and depthy
-     DepthX(I,J) = H_u(I,J)
-     DepthY(I,J) = H_v(I,J)
-
     CALL UPDATE_GROUND_MASK_ETA
-
 
 
 END SUBROUTINE SUBSURFACE_INITIAL
@@ -171,6 +164,12 @@ END SUBROUTINE SUBSURFACE_INITIAL
 !------------------------
 
 SUBROUTINE UPDATE_GROUND_MASK_ETA
+
+
+! depthx and depthy
+! update with time
+     DepthX = H_u
+     DepthY = H_v
 
 ! eta at u v points
 
