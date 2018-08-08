@@ -14,7 +14,7 @@ for num=1:length(nfile)
     
 fnum=sprintf('%.4d',nfile(num));
 %eta=load([fdir 'etagrn_' fnum]);
-eta=load([fdir 'eta_' fnum]);
+eta=load([fdir 'etagrn_' fnum]);
 %p=load([fdir 'pgrn_' fnum]);
 p=load([fdir 'P_' fnum]);
 u=load([fdir 'u_' fnum]);
@@ -26,7 +26,7 @@ clf
 hold on
 plot(eta','r')
 plot(u','b')
-axis([0 264 -0.214 0.12])
+axis([0 70 -0.214 0.12])
 pause(0.5)
 grid
 

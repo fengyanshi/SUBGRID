@@ -59,6 +59,7 @@ PROGRAM SUBGRID_MODEL
 # endif
 
 # if defined (SUBSURFACE)
+    CALL UPDATE_MASKS  ! yjchen added this line 08/08/2018
     CALL SUBSURFACE_INITIAL
 
 # if defined (DEBUG)
@@ -75,7 +76,6 @@ PROGRAM SUBGRID_MODEL
 
 
   DO WHILE (TIME<TOTAL_TIME) ! begin main loop
-
 
    CALL UPDATE_MASKS
 
@@ -866,10 +866,11 @@ SUBROUTINE FILLIN_BOUNDARY_GHOST
  if( n_west .eq. MPI_PROC_NULL )then
 # endif
 
-  DO J=1,Nloc
+  DO J=Jbeg,Jend
   DO I=1,Nghost
    MASKu(I,J)=MASKu(Ibeg,J)
    P(I,J)=P(Ibeg,J)
+   U(I,J)=U(Ibeg,J)
    H_u(I,J)=H_u(Ibeg,J)
   ENDDO
   ENDDO
@@ -878,6 +879,7 @@ SUBROUTINE FILLIN_BOUNDARY_GHOST
   DO I=1,Nghost
    MASKv(I,J)=MASKv(Ibeg,J)
    Q(I,J)=Q(Ibeg,J)
+   V(I,J)=V(Ibeg,J)
    H_v(I,J)=H_v(Ibeg,J)
   ENDDO
   ENDDO
@@ -891,10 +893,11 @@ SUBROUTINE FILLIN_BOUNDARY_GHOST
  if( n_east .eq. MPI_PROC_NULL )then
 # endif
 
-  DO J=1,Nloc
+  DO J=Jbeg,Jend
   DO I=Iend1+1,Mloc1
    MASKu(I,J)=MASKu(Iend1,J)
    P(I,J)=P(Iend1,J)
+   U(I,J)=U(Iend1,J)
    H_u(I,J)=H_u(Iend1,J)
   ENDDO
   ENDDO
@@ -903,6 +906,7 @@ SUBROUTINE FILLIN_BOUNDARY_GHOST
   DO I=Iend1,Mloc
    MASKv(I,J)=MASKv(Iend,J)
    Q(I,J)=Q(Iend,J)
+   V(I,J)=V(Iend,J)
    H_v(I,J)=H_v(Iend,J)
   ENDDO
   ENDDO
@@ -920,14 +924,16 @@ SUBROUTINE FILLIN_BOUNDARY_GHOST
   DO I=1,Mloc
    MASKv(I,J)=MASKv(I,Jbeg)
    Q(I,J)=Q(I,Jbeg)
+   V(I,J)=V(I,Jbeg)
    H_v(I,J)=H_v(I,Jbeg)
   ENDDO
   ENDDO
 
   DO J=1,Nghost
-  DO I=Ibeg,Iend1
+  DO I=1,Mloc1
    MASKu(I,J)=MASKu(I,Jbeg)
    P(I,J)=P(I,Jbeg)
+   U(I,J)=U(I,Jbeg)
    H_u(I,J)=H_u(I,Jbeg)
   ENDDO
   ENDDO
@@ -945,14 +951,16 @@ SUBROUTINE FILLIN_BOUNDARY_GHOST
   DO I=1,Mloc
    MASKv(I,J)=MASKv(I,Jend1)
    Q(I,J)=Q(I,Jend1)
+   V(I,J)=V(I,Jend1)
    H_v(I,J)=H_v(I,Jend1)
   ENDDO
   ENDDO
 
   DO J=Jend1,Nloc
-  DO I=Ibeg,Iend1
+  DO I=1,Mloc1
    MASKu(I,J)=MASKu(I,Jend)
    P(I,J)=P(I,Jend)
+   U(I,J)=U(I,Jend)
    H_u(I,J)=H_u(I,Jend)
   ENDDO
   ENDDO
