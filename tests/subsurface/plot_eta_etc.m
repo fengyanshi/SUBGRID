@@ -1,7 +1,7 @@
 clear all
 fdir='/Users/fengyanshi15/tmp1/';
 
-nfile=[42];
+nfile=[400];
 
 wid=10;
 len=3;
