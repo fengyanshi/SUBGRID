@@ -330,6 +330,8 @@ MODULE GLOBAL
     REAL(SP),DIMENSION(:,:),ALLOCATABLE :: PorMeanSqErr,PorMeanAbsErr,PorMaxAbsErr
 # endif
 
+
+
 ! debug
 # if defined(DEBUG)
     REAL(SP), DIMENSION(:,:),ALLOCATABLE :: tmp,tmpu,tmpv

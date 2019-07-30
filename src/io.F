@@ -543,6 +543,7 @@ SUBROUTINE READ_INPUT
 
      ENDIF ! end cd fixed
 
+
 ! vegetation
 ! vegetation， sediment eco-morpho parts need reading protection
 ! --------------------------------------------------------------
@@ -1282,6 +1283,14 @@ SUBROUTINE PREVIEW
      IF(OUT_ETA_GROUND)THEN
         TMP_NAME = TRIM(FDIR)//'etagrn_'//TRIM(FILE_NAME)
         call PutFile(TMP_NAME,ETA_ground,Mloc,Nloc)
+
+       IF(TIME>StartTimeStatistics)THEN
+        TMP_NAME = TRIM(FDIR)//'maxgrn_'//TRIM(FILE_NAME)
+        call PutFile(TMP_NAME,MaxEtaGrn,Mloc,Nloc)
+        TMP_NAME = TRIM(FDIR)//'mingrn_'//TRIM(FILE_NAME)
+        call PutFile(TMP_NAME,MinEtaGrn,Mloc,Nloc)
+       ENDIF
+
      ENDIF
 
      IF(OUT_P_GROUND)THEN
@@ -1920,6 +1929,7 @@ END SUBROUTINE PutFile_SubGrid
 
 SUBROUTINE STATISTICS
      USE GLOBAL
+
      IMPLICIT NONE
 
      REAL(SP)::MassVolume=ZERO,Energy=ZERO,MaxEta=ZERO,MinEta=ZERO, &
@@ -2028,6 +2038,7 @@ SUBROUTINE STATISTICS
 # endif
 
 101  FORMAT(6E14.6)
+
 
 END SUBROUTINE STATISTICS
 

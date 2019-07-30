@@ -9,7 +9,7 @@
 #--------------------------------------------------------------------------
 
 #            FLAG_1 = -DDOUBLE_PRECISION 
-#             FLAG_2 = -DPARALLEL
+             FLAG_2 = -DPARALLEL
 #            FLAG_3 = -DDEBUG
             FLAG_4 = -DSUBGRID
 #            FLAG_5 = -DCOUPLING

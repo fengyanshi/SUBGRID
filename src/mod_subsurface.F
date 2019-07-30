@@ -39,6 +39,11 @@ MODULE SUBSURFACE_MODULE
   INTEGER, DIMENSION(:,:),ALLOCATABLE::MASK_ground,MASKu_ground,MASKv_ground
   REAL(SP) :: S_constant,KA_constant,POR_constant
 
+! statistics
+
+    REAL(SP), DIMENSION(:,:),ALLOCATABLE :: MaxEtaGrn,MinEtaGrn
+    REAL(SP) :: StartTimeStatistics
+
 #if defined (PARALLEL)
     REAL(SP) :: myvar
 # endif 
@@ -124,6 +129,19 @@ SUBROUTINE SUBSURFACE_INITIAL
 # endif
       ENDIF
 
+      CALL GET_Float_VAL(StartTimeStatistics,FILE_NAME,'StartTimeStatistics',line,ierr)
+      IF(ierr==1)THEN
+        StartTimeStatistics = 0.0
+# if defined (PARALLEL)
+      if (myid.eq.0) THEN
+         WRITE(*,'(A40,A40)')'StartTimeStatistics: Use default,', 'ZERO'
+         WRITE(3,'(A40,A40)')'StartTimeStatistics: Use default,', 'ZERO'
+      endif
+# else
+         WRITE(*,'(A40,A40)')'StartTimeStatistics: Use default,', 'ZERO'
+         WRITE(3,'(A40,A40)')'StartTimeStatistics: Use default,', 'ZERO'
+# endif
+      ENDIF
 
 ! ALLOCATION
 
@@ -136,6 +154,11 @@ SUBROUTINE SUBSURFACE_INITIAL
                  MASKv_ground(Mloc,Nloc1), &
                  DepthX(Mloc1,Nloc),DepthY(Mloc,Nloc1), &
                  ETAu_ground(Mloc1,Nloc),ETAv_ground(Mloc,Nloc1))
+
+    ALLOCATE(MaxEtaGrn(Mloc,Nloc),MinEtaGrn(Mloc,Nloc))
+
+    MaxEtaGrn = -1.0*LARGE
+    MinEtaGrn = LARGE
 
 ! assign variables
 
@@ -260,6 +283,18 @@ SUBROUTINE UPDATE_SUBSURFACE
 # endif
 
     CALL FILLIN_GRN_GHOST
+
+     IF(TIME>StartTimeStatistics)THEN
+       DO J=Jbeg,Jend
+       DO I=Ibeg,Iend
+         IF (MASK(I,J) < 1.0_SP)THEN
+           IF(ETA_ground(I,J)>MaxEtaGrn(I,J))MaxEtaGrn(I,J)=ETA_ground(I,J)
+           IF(ETA_ground(I,J)<MinEtaGrn(I,J))MinEtaGrn(I,J)=ETA_ground(I,J)
+         ENDIF       
+       ENDDO
+       ENDDO
+     ENDIF
+
 
 END SUBROUTINE UPDATE_SUBSURFACE
 
