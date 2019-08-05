@@ -1027,6 +1027,11 @@ SUBROUTINE STATIONS
      IMPLICIT NONE
 
      INTEGER :: iunit
+# if defined (SUBSURFACE)
+     INTEGER :: iunit_subsurface
+     CHARACTER(LEN=80)::TMP_NAME_subsurface
+# endif
+
      INTEGER :: dum1,dum2,dum11,dum22
      CHARACTER(LEN=80)::FILE_NAME
      CHARACTER(LEN=80)::TMP_NAME
@@ -1064,6 +1069,13 @@ SUBROUTINE STATIONS
              TMP_NAME = TRIM(FDIR)//'sta_'//TRIM(FILE_NAME)
              iunit=100+i
              open(iunit,FILE=TMP_NAME)
+
+# if defined (SUBSURFACE)
+             TMP_NAME_subsurface = TRIM(FDIR)//'sta_grn_'//TRIM(FILE_NAME)
+             iunit_subsurface = 200+i
+             open(iunit_subsurface,FILE=TMP_NAME_subsurface)
+# endif
+
           else
              nsta(i) = 0
           endif
@@ -1077,6 +1089,12 @@ SUBROUTINE STATIONS
              TMP_NAME = TRIM(FDIR)//'sta_'//TRIM(FILE_NAME)
              iunit=100+i
              open(iunit,FILE=TMP_NAME)
+
+# if defined (SUBSURFACE)
+             TMP_NAME_subsurface = TRIM(FDIR)//'sta_grn_'//TRIM(FILE_NAME)
+             iunit_subsurface = 200+i
+             open(iunit_subsurface,FILE=TMP_NAME_subsurface)
+# endif
           else
              nsta(i) = 0
           endif
@@ -1097,12 +1115,13 @@ SUBROUTINE STATIONS
                           u(ista(i),jsta(i)),v(ista(i),jsta(i)),&
                           p(ista(i),jsta(i)),q(ista(i),jsta(i)),&
                           porosity(ista(i),jsta(i))
-# if defined(SEDIMENT)
-                          &, con(ista(i),jsta(i))
-# endif
-# if defined(SUBSURFACE)
-                          &, eta_ground(ista(i),jsta(i))
-# endif
+
+#if defined (SUBSURFACE)
+          iunit_subsurface=200+i
+          write (iunit_subsurface,'(20E16.5)') time,  eta_ground(ista(i),jsta(i)),&
+                          P_ground(ista(i),jsta(i)),Q_ground(ista(i),jsta(i))
+# endif 
+
        endif
      enddo
 
@@ -1112,6 +1131,11 @@ SUBROUTINE STATIONS
           if (nsta(i).eq.1) then
              iunit=100+i
              close(iunit)
+#if defined (SUBSURFACE)
+             iunit_subsurface=200+i
+             close(iunit_subsurface)
+
+# endif
           endif
        enddo
      endif
