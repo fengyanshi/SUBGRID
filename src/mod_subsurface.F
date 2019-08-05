@@ -285,8 +285,8 @@ SUBROUTINE UPDATE_SUBSURFACE
     CALL FILLIN_GRN_GHOST
 
      IF(TIME>StartTimeStatistics)THEN
-       DO J=Jbeg,Jend
-       DO I=Ibeg,Iend
+       DO J=1,Nloc
+       DO I=1,Mloc
          IF (MASK(I,J) < 1.0_SP)THEN
            IF(ETA_ground(I,J)>MaxEtaGrn(I,J))MaxEtaGrn(I,J)=ETA_ground(I,J)
            IF(ETA_ground(I,J)<MinEtaGrn(I,J))MinEtaGrn(I,J)=ETA_ground(I,J)
