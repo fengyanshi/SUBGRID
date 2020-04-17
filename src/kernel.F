@@ -813,7 +813,7 @@ SUBROUTINE CALCULATE_H_PQ_UV
    DO J=Jbeg,Jend
    DO I=Ibeg,Iend1
     Fr=SQRT(GRAV*Max(MinDepth,H_u(I,J)))
-    IF(U(I,J)/Fr.gt.FroudeCap)THEN
+    IF(ABS(U(I,J))/Fr.gt.FroudeCap)THEN
      U(I,J)=FroudeCap*Fr
      P(I,J)=U(I,J)*Max(H_u(I,J),MinDepth)
     ENDIF
@@ -823,7 +823,7 @@ SUBROUTINE CALCULATE_H_PQ_UV
    DO J=Jbeg,Jend1
    DO I=Ibeg,Iend
     Fr=SQRT(GRAV*Max(MinDepth,H_v(I,J)))
-    IF(V(I,J)/Fr.gt.FroudeCap)THEN
+    IF(ABS(V(I,J))/Fr.gt.FroudeCap)THEN
      V(I,J)=FroudeCap*Fr
      Q(I,J)=V(I,J)*Max(H_v(I,J),MinDepth)
     ENDIF
