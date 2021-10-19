@@ -1,7 +1,7 @@
          parameter (Ntotal=30000,nsta_tot=200)
          parameter (Nb=400)
          real west_z(nsta_tot,ntotal),west_u(nsta_tot,ntotal),
-     &       time(ntotal),ele(ntotal),
+     &       time(ntotal),
      &        west_v(nsta_tot,ntotal),
      &        east_z(nsta_tot,ntotal),
      &        east_u(nsta_tot,ntotal),east_v(nsta_tot,ntotal),
@@ -28,8 +28,6 @@
          CHARACTER(LEN=80) FDIR
          CHARACTER(LEN=4) FILE_NAME
          integer icount
-         CHARACTER(LEN=80) string
-
 
          icount=0
 
@@ -65,51 +63,58 @@
          print*,'Nsm_west',Nsm_west,'Nsm_east',Nsm_east
          print*,'Nsm_north',Nsm_north,'Nsm_south',Nsm_south
 
-! read data
-        open(1,file='gauge_data.txt')
-        do i=1,Ntotal
-          read(1,*,end=200)time(i),ele(i)
-        enddo
-200     continue
-        Ndata=i-1
 
 !  --------------  construct data
+       Ndata=12
 
+!  make data
+        T_m2=12.42*3600.0
+        omega=2.0*3.1415926/T_m2
+! phase lag between east and west
+        phase=3.1415926/180.0*0.0
+        u_major=0.0
+        u_minor=0.0
+        amp=0.5
+! south
         DO K=1,Ndata
+          TIME(K)=(K-1.0)*3600.0
           DO I=1,Nsouth
           plag=0.0
-          U_COUPLING_SOUTH(I,K)=0.0
-          V_COUPLING_SOUTH(I,K)=0.0
-          Z_COUPLING_SOUTH(I,K)=0.0
+          U_COUPLING_SOUTH(I,K)=u_minor*SIN(omega*TIME(K)-plag)
+          V_COUPLING_SOUTH(I,K)=u_major*SIN(omega*TIME(K)-plag)
+          Z_COUPLING_SOUTH(I,K)=amp*SIN(omega*TIME(K)-plag)
           ENDDO
         ENDDO
 ! north
         DO K=1,Ndata
+          TIME(K)=(K-1.0)*3600.0
           DO I=1,Nnorth
           plag=0.0
-          U_COUPLING_north(I,K)=0.
-          V_COUPLING_north(I,K)=0.
-          Z_COUPLING_north(I,K)=ele(K)
+          U_COUPLING_north(I,K)=u_minor*SIN(omega*TIME(K)-plag)
+          V_COUPLING_north(I,K)=u_major*SIN(omega*TIME(K)-plag)
+          Z_COUPLING_north(I,K)=amp*SIN(omega*TIME(K)-plag)
           ENDDO
 
         ENDDO
 
 ! west
         DO K=1,Ndata
+          TIME(K)=(K-1.0)*3600.0
           DO I=1,Nwest
           plag=0.0
-          U_COUPLING_WEST(I,K)=0.0
-          V_COUPLING_WEST(I,K)=0.0
-          Z_COUPLING_WEST(I,K)=0.0
+          U_COUPLING_WEST(I,K)=u_minor*SIN(omega*TIME(K)-plag)
+          V_COUPLING_WEST(I,K)=u_major*SIN(omega*TIME(K)-plag)
+          Z_COUPLING_WEST(I,K)=amp*SIN(omega*TIME(K)-plag)
           ENDDO
         ENDDO
 ! east
         DO K=1,Ndata
+          TIME(K)=(K-1.0)*3600.0
           DO I=1,Neast
           plag=0.0
-          U_COUPLING_east(I,K)=0.0
-          V_COUPLING_east(I,K)=0.0
-          Z_COUPLING_east(I,K)=0.0
+          U_COUPLING_east(I,K)=u_minor*SIN(omega*TIME(K)-plag)
+          V_COUPLING_east(I,K)=u_major*SIN(omega*TIME(K)-plag)
+          Z_COUPLING_east(I,K)=amp*SIN(omega*TIME(K)-plag)
           ENDDO
         ENDDO
 
