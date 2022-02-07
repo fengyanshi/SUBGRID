@@ -1,0 +1,173 @@
+!INPUT FILE FOR SUBGRID MODEL
+  ! NOTE: all input parameter are capital sensitive
+  ! --------------------TITLE-------------------------------------
+  ! title only for log file
+TITLE = TEST RUN
+  ! -------------------HOT START---------------------------------
+HOT_START = F
+FileNumber_HOTSTART = 1
+  ! -------------------PARALLEL INFO-----------------------------
+  ! 
+  !    PX,PY - processor numbers in X and Y
+  !    NOTE: make sure consistency with mpirun -np n (px*py)
+	  !    
+PX = 2
+PY = 2
+  ! --------------------DEPTH-------------------------------------
+SubMainGridRatio = 4
+DEPTH_FILE = ./dep_chn.txt
+  ! -------------------PRINT---------------------------------
+  ! result folder
+RESULT_FOLDER = ./out2/
+  ! ------------------DIMENSION-----------------------------
+  ! global grid dimension
+Mglob = 100
+Nglob = 100
+  ! -----------------GRID----------------------------------
+DX = 16.0
+DY = 16.0
+  ! ----------------- TIME----------------------------------
+  ! time: total computational time/ plot time / screen interval 
+  ! all in seconds
+TOTAL_TIME = 172800.0
+PLOT_INTV =    1800.0
+PLOT_INTV_STATION = 600.0
+SCREEN_INTV = 100.0
+  ! -----------------ONEWAY COUPLING---------------------
+COUPLING_FILE = none
+  ! ----------------TIDE BOUNDARY------------------------
+TIDE_CLAMPED = T
+TIDE_FILE = ./tide_bc.txt  
+  ! ----------------RIVER DISCHARGE----------------------
+RIVER_CLAMPED = F
+RIVER_FILE = none  
+  ! ----------------PHYSICS------------------------------
+Nonlinear = 1
+NU = 0.1
+Cd_fixed = 0.0025
+Manning = 0.02
+MANNING_TYPE = UNIFORM
+MANNING_FILE = subgridfric.txt
+MANNINGSUBGRID_FILE = none
+SUBGRID_CD_FIXED = F
+SUBGRID_UV_CORRECTION = F
+  ! ----------------VEGETATION--------------------------
+VEG_TYPE = VARY
+VEG_H_FILE = ./veg_hgt.txt
+VEG_N_FILE = ./veg_num.txt
+VEG_D_FILE = ./veg_dia.txt
+VEG_H_SUBGRID_FILE = none
+VEG_N_SUBGRID_FILE = none
+VEG_D_SUBGRID_FILE = none
+  ! ----------------SEDIMENT----------------------------
+UPDATE_BED = F
+COHESIVE = F
+NONCOHESIVE = T
+INITIAL_SED = F
+INITIAL_SED_FILE = sediment_ini.txt
+BOUNDARY_SED = F
+SED_BC_CLAMPED = F
+SED_BC_NEUMANN = T
+SED_BC_CONSTANT = F
+BOUNDARY_SED_FILE = sediment_bnd.txt
+CONSTANT_SED_FIEL = none
+! mud parameters
+NU_SED = 0.2
+Ws = 0.2
+Tau_CE = 0.40
+Tau_CD = 0.15
+ErosionRate = 0.0005
+! sand transport EH: Engelund-Hansen; MP: Meyer-Peter-M
+SandFormula = EH
+D50 = 120.0
+RHO_SED_BULK = 1600.0
+! 1600 for sand, 500 for mud
+BedPorosity = 0.40
+! 0.40 for sand, 0.8 for mud
+MorphFactor = 10.0
+TIME_MORPH_SPINUP = 0.0
+  ! ----------------ECOMORPHOLOGY-----------------------
+!! biomass model
+CALCULATE_BIOMASS = F
+INITIAL_BIOMASS = F
+INITIAL_BIOMASS_FILE = none
+MaxCarryBiomass = 2000.0
+!! dynamic population model
+ ! options
+CALCULATE_POPULATION = T
+CALCULATE_ESTABLISH = T
+CALCULATE_DIFFUSION = T
+CALCULATE_MORTALITY_FLOW = T
+CALCULATE_MORTALITY_INUN = T
+CALCULATE_SPECY_INTERACT = F
+ ! initial patches
+INITIAL_POPULATION = T
+INITIAL_STEMHEIGHT_FILE = ./veg_hgt.txt
+INITIAL_STEMDENSITY_FILE = ./veg_num.txt
+INITIAL_STEMDIAMETER_FILE = ./veg_dia.txt
+ ! time step in days
+DT_ECO = 5.0
+ ! random establish
+STEMDENSITY_BARE = 1.0
+P_ESTABLISH = 0.01
+H_ESTABLISH = 0.2
+N_ESTABLISH = 120.0
+D_ESTABLISH = 0.0043
+ ! max/min values
+MaxStemDensity = 1200.0
+MaxStemHeight = 2.0
+MaxStemDiameter = 0.01
+MinStemDiameter = 0.001
+ ! rates, unit: year^-1
+LateralGrowthRate = 1.0
+VerticalGrowthRate = 2.0
+DiameterGrowthRate = 0.0003
+COEF_DIFF_VEG = 0.2
+TAU_CR_VEG = 0.15
+HGT_CR_VEG = 1.0
+COEF_MORTALITY_INUN = 3000.0
+COEF_MORTALITY_FLOW = 30.0
+ ! sediment trapping 
+ ! organic production
+  ! ----------------PRE-STORAGE-------------------------
+EtaMaxVal = 1.0
+EtaMinVal = -0.6
+D_Eta = 0.01
+PolyOrder = 4  
+  ! --------------WET-DRY-------------------------------
+MinDepth=0.01
+MinDepFric=0.001
+!INACTIVE_PNT_FILE = mask_dune.txt
+  ! ----------------NUMERICS----------------------------
+ADI = F
+HOPSCOTCH = T
+IMPLICIT = T
+CFL = 0.5
+FroudeCap = 1.0
+  ! -----------------OUTPUT-----------------------------
+  ! stations 
+  ! if NumberStations>0, need input i,j,ii,jj in STATION_FILE
+NumberStations = 0
+STATIONS_FILE = station.txt
+  ! output variables, T=.TRUE, F = .FALSE.
+DEPTH_OUT = F
+U = T
+V = T
+SUBGRID_UV = F
+ETA = T
+MASK = T
+P = F
+Q = F
+PORO = F
+FRIC = F
+TAU = F
+SED = F
+BED = F
+HVEG = F
+DVEG = F
+NVEG = F
+TMP = F
+
+
+
+
